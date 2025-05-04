@@ -1,0 +1,278 @@
+{
+  "main": {
+    "id": "d78a3abfeea5a7d6",
+    "type": "split",
+    "children": [
+      {
+        "id": "0c9f49ad4be047d0",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a8473e166af4973e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Problem Solving/DSA(PROBLEM SOLVING ).md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "DSA(PROBLEM SOLVING )"
+            }
+          },
+          {
+            "id": "2a67f6302b439562",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Problem Solving/DSA(PROBLEM SOLVING ).md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "DSA(PROBLEM SOLVING )"
+            }
+          },
+          {
+            "id": "dae95daa0c9ca8bb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Problem Solving/Common Approach to solve Uncommon problems.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Common Approach to solve Uncommon problems"
+            }
+          },
+          {
+            "id": "98328197d9bdd66c",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "RandomNotes/React js/some golden  React rules.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "some golden  React rules"
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "e235edcb7768cdce",
+    "type": "split",
+    "children": [
+      {
+        "id": "9f0dead9518b4014",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d0dada37b42749cf",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "44d14d200fe9cf25",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "baed5f0180363e38",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200
+  },
+  "right": {
+    "id": "67cbec377368957a",
+    "type": "split",
+    "children": [
+      {
+        "id": "02a039bd34da7818",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d8774fb182544d94",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "React js/why React Re-rendering.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for why React Re-rendering"
+            }
+          },
+          {
+            "id": "a42adbbb4156f7f0",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "React js/why React Re-rendering.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from why React Re-rendering"
+            }
+          },
+          {
+            "id": "fd638aa3beeccde8",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "eb2513981ea66052",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "REACT.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of REACT"
+            }
+          },
+          {
+            "id": "c5211b9171498c8d",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "obsidian-git:Open Git source control": false
+    }
+  },
+  "active": "dae95daa0c9ca8bb",
+  "lastOpenFiles": [
+    "Problem Solving/DSA(PROBLEM SOLVING ).md",
+    "Problem Solving/Common Approach to solve Uncommon problems.md",
+    "RandomNotes/React js/React.Js Learning from books.md",
+    "Search is not just UI — it's a performance-critical feature..md",
+    "RandomNotes/React js/Search(who is better)",
+    "Intial Booster problem.md",
+    "Untitled",
+    "inital Bosster confidanvce",
+    "Project Based Learning/React Package we have used.md",
+    "Project Based Learning/Learning React From Project.md",
+    "RandomNotes/java script Random concepts.md",
+    "Language/JavaScript.md",
+    "RandomNotes/React js/why React Re-rendering.md",
+    "RandomNotes/React js/React Internals.md",
+    "redux/REACT .T .K.md",
+    "RandomNotes/React js/some golden  React rules.md",
+    "React Hooks.md",
+    "Pasted image 20250429142819.png",
+    "Pasted image 20250429142145.png",
+    "RandomNotes/React js/Html Tags Used In Project.md",
+    "RandomNotes/React js/general Concept.md",
+    "Pasted image 20250428104606.png",
+    "Pasted image 20250428104445.png",
+    "Project Based Learning/Images Used in project Based Learning/Pasted image 20250428095841.png",
+    "Project Based Learning/Images Used in project Based Learning/Pasted image 20250428101352.png",
+    "Language/languageImages/Pasted image 20250423153957.png",
+    "Project Based Learning/Images Used in project Based Learning/Pasted image 20250428094332.png",
+    "Language/languageImages/Pasted image 20250425012405.png",
+    "Language/languageImages/Pasted image 20250424144844.png",
+    "Project Based Learning/Images Used in project Based Learning",
+    "Language/languageImages",
+    "javaScript.md",
+    "Project Based Learning",
+    "Basic Engineering/NEW setup on Ubuntu.md",
+    "Language",
+    "Basic Engineering",
+    "Problem Solving",
+    "Untitled.canvas",
+    "redux/ReactLifecycle.canvas",
+    "RandomNotes",
+    "redux/Most Basic Setup RT K(Redux Tool Kit).md",
+    "Language/Typescript.md",
+    "React.md",
+    "note.md",
+    "Welcome.md",
+    "Untitled 1.canvas",
+    "2025-04-04.md",
+    "().md",
+    "Untitled/Untitled.md"
+  ]
+}
