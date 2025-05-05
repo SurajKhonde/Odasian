@@ -230,5 +230,412 @@ Object Methods
 | `Object.setPrototypeOf(obj, proto)`            | Sets the prototype (parent) of an object                                                | `Object.setPrototypeOf({}, Array.prototype)`           |
 | `Object.defineProperty(obj, prop, descriptor)` | Defines a new property on an object with specific options                               | `Object.defineProperty({}, 'a', {value: 1})`           |
 | `Object.defineProperties(obj, props)`          | Defines multiple properties on an object                                                | `Object.defineProperties({}, {a: {value: 1}})`         |
-****
 
+# some concept impress you
+
+**How JavaScript Handles Hoisting Internally**
+
+When JavaScript executes a script, it does this in **two phases**:
+
+**1️⃣ Creation Phase (Memory Allocation)**
+
+- Functions & variables are stored in memory before execution starts.
+- Function declarations are fully hoisted (available before execution).
+- Variables (`var`) are hoisted but not initialized (set to `undefined`).
+
+**2️⃣ Execution Phase**
+
+- Code runs **line by line**, using the stored memory references.
+
+🔹 Function Hoisting (Fully Hoisted ✅)
+
+```jsx
+sayHello(); // ✅ Works due to hoisting
+
+function sayHello() {
+    console.log("Hello, World!");
+}
+```
+
+**Behind the scenes:**
+
+```jsx
+// JavaScript engine processes like this internally:
+function sayHello() {   // ✅ Function moved to the top (fully hoisted)
+    console.log("Hello, World!");
+}
+sayHello();
+
+```
+
+**1️⃣ `var` Hoisting (Partially Hoisted, `undefined`)**
+
+`var` is hoisted but not initialized.
+
+- If accessed before declaration, it returns **`undefined`** (not an error).
+
+```jsx
+console.log(a); // ❌ undefined (not an error)
+var a = 5;
+console.log(a); // ✅ **Behind the scenes:**
+```
+
+```jsx
+// JavaScript internally does this:
+var a; // ✅ Hoisted to the top (default: undefined)
+console.log(a); // ❌ undefined
+a = 5; // ✅ Assigned value later
+console.log(a); // ✅ 5
+
+```
+
+**2️⃣ `let` & `const` Hoisting (Hoisted but in "Temporal Dead Zone")**
+
+- Unlike `var`, they are hoisted but not initialized.
+- Accessing them before declaration causes an error.
+
+```jsx
+console.log(b); // ❌ ReferenceError: Cannot access 'b' before initialization
+let b = 10;
+```
+
+```jsx
+// JavaScript internally does this:
+let b; // ✅ Hoisted but NOT initialized (stays in Temporal Dead Zone)
+console.log(b); // ❌ ReferenceError
+b = 10; // ✅ Now it’s initialized
+```
+
+**🔹 Hoisting Summary Table**
+
+| Feature | `var` | `let` | `const` | `function` |
+| --- | --- | --- | --- | --- |
+| **Hoisted?** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Initialized?** | ❌ `undefined` | ❌ No (TDZ) | ❌ No (TDZ) | ✅ Fully hoisted |
+| **Can access before declaration?** | ✅ Yes (`undefined`) | ❌ No (TDZ error) | ❌ No (TDZ error) | ✅ Yes |
+
+**🔹 Key Takeaways**
+
+✅ Function declarations are fully hoisted.
+
+✅ `var` is hoisted, but set to `undefined`.
+
+✅ `let` and `const` are hoisted, but in Temporal Dead Zone (TDZ), causing errors if accessed too early.
+
+✅ Hoisting helps JavaScript run scripts even if functions or variables are declared later.
+
+Would you like to see hoisting in `class` or arrow functions? 🚀
+
+**🚀 Temporal Dead Zone (TDZ) in JavaScript**
+
+Temporal Dead Zone (TDZ) ****is the period between the **start of variable hoisting and its initialization** .
+
+If you try to access the variable during this period, JavaScript throws a **ReferenceError**.
+
+TDZ only affects `let` and `const`(not var)
+
+Variables declared with `let` or `const` are hoisted but not initialized until the execution reaches the declaration.
+
+```jsx
+console.log(a); // ❌ ReferenceError: Cannot access 'a' before initialization
+let a = 10;
+console.log(a); // ✅ 10 (Accessing after declaration is fine)
+//Behind the scenes:
+// JavaScript internally does this:
+let a;  // ✅ Hoisted but uninitialized (TDZ starts)
+console.log(a); // ❌ ReferenceError (TDZ still active)
+a = 10; // ✅ Now initialized, TDZ ends
+console.log(a); // ✅ 10
+```
+
+**🔹 Why Does TDZ Exist?**
+
+TDZ prevents using uninitialized variables and improves code safety by enforcing proper variable usage
+
+**Syntax of Arrow Functions**
+
+```jsx
+// Regular function
+function add(a, b) {
+    return a + b;
+}
+
+// Arrow function (shorter)
+const add = (a, b) => a + b;
+
+console.log(add(5, 3)); // ✅ 8
+
+```
+
+- No need for `function` keyword.
+- **`return` is implicit** if the function body contains a single expression.
+- Parentheses `( )` are optional if there’s only **one parameter**.
+
+**🚀 Understanding Implicit `return` in Arrow Functions**
+
+In arrow functions, if the function body contains only a **single expression,** you can omit the `{}` (curly braces) and the `return` **keyword—this is called implicit return**.
+
+**✅ Example 1: Explicit vs. Implicit Return**
+
+🔹 Regular Function (Explicit `return`)
+
+```jsx
+const add = (a, b) => {
+    return a + b; // ✅ Explicit return (you must write `return`)
+};
+console.log(add(3, 4)); // ✅ 7
+
+```
+
+ Arrow Function (Implicit `return`)
+
+```jsx
+const add = (a, b) => a + b; // ✅ No `{}`, no `return` (implicit return)
+console.log(add(3, 4)); // ✅ 7
+```
+
+✅ Example 2: Implicit Return with String
+
+```jsx
+const greet = name => `Hello, ${name}!`; // ✅ No `{}`, no `return`
+console.log(greet("Samay")); // ✅ "Hello, Samay!"
+
+```
+
+**✅ Example 3: Implicit Return with an Object (❗ Extra `()` Needed)**
+
+If you return an **object literal**, you **must wrap it in `()`**. Otherwise, `{}` will be treated as a function block.
+
+```jsx
+// ❌ Incorrect (doesn't work)
+const getUser = (name, age) => { name: name, age: age };
+
+// ✅ Correct (Wrap in `()`)
+const getUser = (name, age) => ({ name: name, age: age });
+
+console.log(getUser("Samay", 30)); 
+// ✅ { name: "Samay", age: 30 }
+📌 Why?
+{} alone is treated as a function block, not an object.
+Wrapping it in () makes JavaScript understand it's an object.
+```
+
+✅ When Do You Need `{}` and `return`?
+
+```jsx
+const multiply = (a, b) => {
+    console.log(`Multiplying ${a} and ${b}`); // Extra statement
+    return a * b; // ✅ Must use `return`
+};
+console.log(multiply(3, 4)); // ✅ 12
+
+```
+
+**🔹 What is a Promise in JavaScript?**
+
+A **Promise** in JavaScript is an object that represents the eventual **completion** (or **failure**) of an **asynchronous** operation. Instead of using **callbacks**, Promises help us write cleaner and more readable asynchronous code.
+
+📌 **Think of a Promise like a real-life promise:**
+
+- You order food online (a request is made).
+- The restaurant promises to deliver it (a promise is created).
+- The delivery can be successful ✅ (fulfilled) or fail ❌ (rejected).
+
+🔹 Basic Syntax of a Promise
+
+A Promise is created using the `new Promise()` constructor, which takes a function (called the **executor function**) with **two parameters**:
+
+- **`resolve`** → Call this when the operation is successful.
+- **`reject`** → Call this when the operation fails.
+
+```jsx
+const myPromise = new Promise((resolve, reject) => {
+    let success = true; // Change this to false to test rejection
+
+    if (success) {
+        resolve("✅ Operation successful!");
+    } else {
+        reject("❌ Operation failed!");
+    }
+});
+
+console.log(myPromise); // Promise { <pending> }
+ // why ? { <pending> }
+// 1️⃣ .then() → Executes when the promise is resolved
+ myPromise
+    .then(result => {
+        console.log(result); // ✅ "Operation successful!"
+    });
+
+//2️⃣ .catch() → Executes when the promise is rejected
+
+myPromise
+    .catch(error => {
+        console.log(error); // ❌ "Operation failed!"
+    });
+3️⃣ .finally() → Always executes (whether resolved or rejected)
+
+myPromise
+    .finally(() => {
+        console.log("🎯 Promise completed!");
+    });
+
+```
+
+🔹 `Promise.all()`, `Promise.race()`, `Promise.allSettled()`, `Promise.any()`
+
+1️⃣ `Promise.all()` → Waits for all promises to resolve or rejects if one fails
+
+```jsx
+const p1 = new Promise(res => setTimeout(() => res("🚀 P1 Done!"), 1000));
+const p2 = new Promise(res => setTimeout(() => res("🎯 P2 Done!"), 2000));
+const p3 = new Promise((_, rej) => setTimeout(() => rej("❌ P3 Failed!"), 1500));
+
+Promise.all([p1, p2, p3])
+    .then(results => console.log(results))
+    .catch(error => console.log("Error:", error)); // ❌ Stops if one fails
+
+```
+
+2️⃣ `Promise.race()` → Returns the first promise that settles (resolved/rejected)
+
+```jsx
+Promise.race([p1, p2, p3])
+    .then(result => console.log("First done:", result))
+    .catch(error => console.log("First failed:", error));
+```
+
+3️⃣ `Promise.allSettled()` → Returns results for all promises (whether resolved or rejected)
+
+```jsx
+Promise.allSettled([p1, p2, p3])
+    .then(results => console.log("All Settled:", results));
+```
+
+✅ It **does not fail** if one promise fails.
+
+✅ It **returns an array** of objects, each containing:
+
+- **`status`** → `"fulfilled"` if resolved, `"rejected"` if failed
+- **`value`** → The resolved value (if fulfilled)
+- **`reason`** → The error message (if rejected)
+
+`Promise.allSettled()` is useful when you want to handle both success and failure cases gracefully.
+
+4️⃣ `Promise.any()` → Resolves when the first successful promise resolves
+
+```jsx
+Promise.any([p1, p2, p3])
+    .then(result => console.log("First Success:", result))
+    .catch(error => console.log("All failed:", error));
+```
+
+ ****Key Differences Between `Promise.all()`, `Promise.allSettled()`, and `Promise.any()`
+
+| Method | Resolves When | Rejects When | Returns |
+| --- | --- | --- | --- |
+| **`Promise.all()`** | All promises succeed ✅ | If **one** fails ❌ | Array of values 📦 |
+| **`Promise.allSettled()`** | All promises settle (resolve or reject) | Never rejects 🚀 | Array of `{status, value/reason}` |
+| **`Promise.any()`** | First **fulfilled** promise ✅ | If **all** fail ❌ | First successful value 📦 |
+
+JavaScript Memory Management & Garbage Collection (Deep Dive)
+
+JavaScript automatically manages memory allocation and cleanup using **garbage collection**. But how does it work?
+
+🔹 1. Memory **Lifecycle** in JavaScript
+
+Every variable or function you declare goes through **three stages**:
+
+1. **Allocation** → Memory is allocated when a variable is declared or an object is created.
+2. **Usage** → JavaScript uses the allocated memory during execution.
+3. **Release (Garbage Collection)** → When a variable is no longer needed, memory is reclaimed.
+
+```jsx
+function demo() {
+  let name = "Samay"; // Memory allocated
+  console.log(name);  // Memory is in use
+} // Memory released after function execution (if no references exist)
+demo();
+
+```
+
+After `demo()` runs, `"Samay"` is no longer needed, and JavaScript **automatically clears the memory**.
+
+🔹 2. Stack vs Heap Memory
+
+| Memory Type | Used For | Lifecycle |
+| --- | --- | --- |
+| **Stack** | Stores **primitives** (numbers, strings, booleans) and function call information | Cleared **automatically** when a function completes |
+| **Heap** | Stores **objects, arrays, functions** | Cleared **only if no references exist** (garbage collection) |
+
+```jsx
+function stackExample() {
+  let age = 30; // Stored in Stack (primitive)
+  let person = { name: "Samay", age: 30 }; // Stored in Heap (object)
+}
+stackExample(); // `age` is removed from Stack, but `person` is in Heap until garbage collected
+
+```
+
+✔️ `age` is automatically removed when `stackExample()` completes.
+
+❌ `person` remains in memory **unless there are no references** to it.
+
+🔹 3. How JavaScript Handles Garbage Collection
+
+JavaScript’s **Garbage Collector (GC)** follows an algorithm called **"Mark-and-Sweep"**, which works like this:
+
+1. **Mark Phase** – The GC marks all objects that are still **reachable** (in use).
+2. **Sweep Phase** – It removes all objects that are **unreachable** (not referenced anywhere).
+
+```jsx
+function createUser() {
+  let user = { name: "Samay" }; // user is stored in Heap
+  return user;
+}
+
+let newUser = createUser(); // `user` is still reachable via `newUser`
+newUser = null; // Now, `user` becomes unreachable and is garbage collected
+
+```
+
+❌ Once `newUser = null`, the object is **marked for garbage collection**.
+
+✔️ As long as `newUser` references the object, it stays in memory.
+
+🔹 4. What If a Variable Is Returned from a Function?
+
+If a function returns a reference to an object, **that object will not be garbage collected** until there are no references left.
+
+```jsx
+function createPerson() {
+  let person = { name: "Samay" }; // Allocated in Heap
+  return person;
+}
+let user = createPerson(); // Now user points to person
+
+```
+
+✔️ Even after `createPerson()` finishes execution, the object is **still in memory** because `user` holds a reference to it.
+
+🔹 5. How Memory Leaks Happen? (Monitor Them!)
+
+A **memory leak** happens when unused objects are **never garbage collected**, leading to high memory usage.
+
+### 🔥 Common Causes of Memory Leaks:
+
+| Cause | Example |
+| --- | --- |
+| **Global Variables** | Declaring variables without `let`, `const`, or `var` (`x = "leak";`) |
+| **Uncleared Timers & Intervals** | `setInterval(() => console.log("Hello"), 1000);` (not cleared) |
+| **Event Listeners Not Removed** | `element.addEventListener("click", () => {...})` (not removed) |
+| **Closures Holding References** | Functions holding objects in memory even when not needed |
+
+```jsx
+let obj = {};
+setInterval(() => {
+  obj.leak = "This will never be garbage collected";
+}, 1000); // This keeps adding data to `obj` forever
+✅ Fix: Use clearInterval() when not needed.
+
+```

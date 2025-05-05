@@ -288,7 +288,7 @@ Step by Step Flow:
 
 2️⃣ दो pointer रखो: 
     - i = -1 (smaller elements का pointer)
-    - j = 0 से start करके n-2 तक जाओ
+    - j = 0 से start करके j< =n-2 तक जाओ
 
 3️⃣ Compare each element with pivot:
    अगर arr[j] < pivot हो → i++ और arr[i] ↔️ arr[j] swap
@@ -307,5 +307,173 @@ Step by Step Flow:
 ``` txt
 Pivot → Partition → Swap → Divide → Recursion
 पिवट लो → बाँटो → छोटे-बड़े को swap करो → दो भाग → हर भाग को दोबारा sort करो
+
+```
+###### Quick Sort
+```js 
+function quickSort(arr, low, high) {
+  if (low < high) {
+    const pi = partition(arr, low, high); // 1. पिवट को सही जगह पर रखो
+    quickSort(arr, low, pi - 1);          // 2. left side sort करो
+    quickSort(arr, pi + 1, high);         // 3. right side sort करो
+  }
+}
+
+function partition(arr, low, high) {
+  const pivot = arr[high];
+  let i = low - 1;
+
+  for (let j = low; j < high; j++) {
+    if (arr[j] < pivot) {
+      i++;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+  }
+
+  [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
+  return i + 1;
+}
+
+```
+
+######  Binary Search (Iterative version)
+``` js
+function binarySearch(arr, target) {
+  let left = 0;
+  let right = arr.length - 1;
+
+  while (left < = right) {
+    const mid = Math.floor((left + right) / 2);
+
+    if (arr[mid] === target) {
+      return mid; // Found target at index `mid`
+    } else if (arr[mid] < target) {
+      left = mid + 1; // Search in the right half
+    } else {
+      right = mid - 1; // Search in the left half
+    }
+  }
+
+  return -1; // Target not found
+}
+
+```
+
+
+#### Merge Sort क्या है?
+Merge Sort एक Divide and Conquer algorithm है।
+इसका मतलब है:
+बड़े problem को छोटे-छोटे हिस्सों (sub-problems) में तोड़ना (Divide)
+हर हिस्से को solve करना (Conquer)
+और फिर वापस जोड़कर final result बनाना (Combine/Merge)
+ ये एक stable sorting algorithm है — यानी दो same value वाले items की order नहीं बदलती।
+##### Algorithm का Logic (Behind the Scenes)
+सोचो तुम्हारे पास एक array है:
+`[8, 4, 2, 7, 5]`
+Step 1: Divide — Array को 2 parts में divide करो
+```js
+Left:  [8, 4]
+Right: [2, 7, 5]
+```
+Step 2: फिर हर part को तब तक divide करते रहो जब तक हर part 1 element का न बन जाए
+```js
+[8], [4], [2], [7], [5]
+```
+Step 3: अब दो-दो parts को merge करो — और merge करते वक्त उन्हें **sorted way** में जोड़ो
+```js
+[8] + [4] → [4, 8]  
+[2] + [7] → [2, 7]  
+अब [2, 7] + [5] → [2, 5, 7]
+अब [4, 8] + [2, 5, 7] → [2, 4, 5, 7, 8]
+```
+ 3. Flowchart Type Steps (Algorithm Flow):
+ ```js
+ function mergeSort(arr):
+  अगर arr.length <= 1:
+    return arr
+
+  middle = arr.length / 2
+  left = arr.slice(0, middle)
+  right = arr.slice(middle)
+
+  sortedLeft = mergeSort(left)
+  sortedRight = mergeSort(right)
+
+  return merge(sortedLeft, sortedRight)
+
+```
+4. Merge Function कैसे काम करता है? (Core Magic)
+```js
+function merge(left, right):
+  result = []
+
+  दो pointer रखो — leftBox, rightBox = 0
+
+  जब तक दोनों arrays में elements हैं:
+    अगर left[leftBox] छोटा है:
+      result.push(left[leftBox])
+      leftBox++
+    वरना:
+      result.push(right[rightBox])
+      rightBox++
+
+  बचे हुए elements (किसी एक array में बच सकते हैं):
+    result.push(...left बचा हो तो)
+    result.push(...right बचा हो तो)
+
+  return result
+
+```
+#####  Time & Space Complexity:
+
+|Case|Time Complexity|
+|---|---|
+|Best Case|O(n log n)|
+|Average|O(n log n)|
+|Worst Case|O(n log n)|
+|Space|O(n) → क्योंकि हर बार नया array बनता है|
+
+>  **Quick Sort की तरह ही divide करता है**, लेकिन इसमें pivot नहीं होता। Merge Sort हर बार पूरे array को divide करता है और फिर merge करता है।
+
+##### कहाँ Use होता है?
+- जब stable sort ज़रूरी हो
+- जब linked list या external sorting (file sorting) करनी हो
+>[! Important]
+>(टुकड़े टुकड़े करो → sort करो → फिर जोड़ो)
+
+```js
+function merge(left, right) {
+  const result = [];
+  let leftIndex = 0;
+  let rightIndex = 0;
+  // दोनों arrays के elements को compare करके result में push करो
+  while (leftIndex < left.length && rightIndex < right.length) {
+    if (left[leftIndex] < right[rightIndex]) {
+      result.push(left[leftIndex]);
+      leftIndex++;
+    } else {
+      result.push(right[rightIndex]);
+      rightIndex++;
+    }
+  }
+  // जो elements बच गए हैं उन्हें भी जोड़ दो
+  return result
+    .concat(left.slice(leftIndex))
+    .concat(right.slice(rightIndex));
+}
+function mergeSort(arr) {
+  // base case: अगर array में 1 या 0 elements हैं, वो already sorted है
+  if (arr.length <= 1) {
+    return arr;
+  }
+  const middle = Math.floor(arr.length / 2);
+  const left = arr.slice(0, middle);
+  const right = arr.slice(middle);
+  // पहले left और right को recursively sort करो
+  const sortedLeft = mergeSort(left);
+  const sortedRight = mergeSort(right);
+  // फिर उन्हें merge करो
+  return merge(sortedLeft, sortedRight);
+}
 
 ```

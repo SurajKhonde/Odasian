@@ -1423,8 +1423,260 @@ console.log(cloned.self === cloned); // true
 - **State**: Internal, changeable, for _managing component behavior/data_.
 
 ## EVENTS
-HOW EVENTS WORK IN REACT
+#### HOW EVENTS WORK IN REACT
+In HTML, it’s possible to use event attributes to call JavaScript functions. These event attrib‑ utes have names starting with `on`and they take a function call as their value. For example, the HTML `onsubmit` event attribute can be used with the element to invoke a function when the form is submitted.
+###### Separation of Concerns
+```html
+<form id="signup-form" onsubmit="validate()">
+  <input type="text" id="email">
+  <input type="text" id="fullname">
+  <input type="submit">
+</form>
+```
+The **Separation of Concerns (SoC)** principle says:
+
+> Keep your structure (HTML), style (CSS), and behavior (JavaScript) in separate places.
+
+
+In our code:
+- The `onsubmit="validate()"` puts **JavaScript logic directly into your HTML**.
+- That means your HTML is **handling structure _and_ behavior**, which mixes responsibilities.
+- It becomes harder to read, test, debug, or reuse code.
+- If you want to change the behavior, you must edit HTML instead of just modifying a script file.
+**Better version using `addEventListener` (good separation)**
+```html
+<form id="signup-form">
+  <input type="text" id="email" placeholder="Email">
+  <input type="text" id="fullname" placeholder="Full Name">
+  <input type="submit">
+</form>
+<script>
+  document.getElementById('signup-form').addEventListener('submit', function(e) {
+    e.preventDefault(); // prevent actual form submission
+    validate(); // call external function
+  });
+
+  function validate() {
+    const email = document.getElementById('email').value.trim();
+    const fullname = document.getElementById('fullname').value.trim();
+
+    if (!email || !fullname) {
+      alert('Please fill out all fields.');
+    } else {
+      alert('Form submitted successfully!');
+    }
+  }
+</script>
+
+```
+###### Why this respects Separation of Concerns:
+
+|Concern|Where it lives|
+|---|---|
+|HTML|Only defines the **structure** (form layout)|
+|JavaScript|Handles **behavior** (validation, events)|
+|CSS (if any)|Controls **appearance**|
 ### Why SyntheticEvent is Still Useful Today
 
 Although most modern browsers now handle events in a similar way, **React still uses SyntheticEvent** because it offers **consistent behavior** and some **extra helpful features** that native events don’t provide. The main benefit today is that it gives every developer the same experience, no matter what browser is being used.
 Another advantage is that SyntheticEvent **hides the complex implementation details** of how React manages events behind the scenes. As developers, we don’t need to worry about how React links a `click` or `change` event to the real DOM—it just works. Even though it's possible to dig into how SyntheticEvent maps to native events, React's documentation purposely keeps this vague, because it’s **not something we usually need to worry about**. These internal details can change with new React versions, so it’s safer to just use the API React provides and trust it to handle things correctly.
+
+#### THE EVENT OBJECT
+**Events in React are not raw DOM events** — they're wrapped by React into a `SyntheticEvent` object.
+This wrapper provides:
+- A consistent API across all browsers (important for cross-browser apps).
+- Access to all key event properties like `target`, `type`, `preventDefault()`, etc.
+- You can access this event object in your event handler by **adding a parameter** (commonly named `event` or `e`).
+- If needed, you can still get the **original DOM event** using `event.nativeEvent`.
+######  React Component with Click Event
+```jsx
+import React from "react";
+
+function ClickExample() {
+  const handleClick = (event) => {
+    console.log("SyntheticEvent object:", event);                // React synthetic wrapper
+    console.log("Event type:", event.type);                      // click
+    console.log("Target element:", event.target);                // button element
+    console.log("Is cancelable:", event.cancelable);             // true
+    event.preventDefault();                                      // cancel default behavior
+    console.log("Original native event:", event.nativeEvent);    // raw DOM event
+  };
+
+  return (
+    <button onClick={handleClick}>
+      Click me
+    </button>
+  );
+}
+
+export default ClickExample;
+
+```
+###### What Happens When You Click the Button
+1. **React detects the click** and creates a **SyntheticEvent**.
+2. This object has properties:
+    - `event.type`: `"click"`
+    - `event.target`: the `<button>` element
+    - `event.cancelable`: `true` (you can prevent the click's default action)
+    - `event.preventDefault()`: cancels default action
+###### Writing Inline Event Handlers
+An inline event handler is an anonymous function that’s written as the value of an event listener attribute. Inline event handlers are often used as wrappers for calling another function that’s defined outside of the return statement.
+```jsx
+function WarningButton(){
+return (
+ <button onClick={()=>{alert('Are you sure?');}}>Don't Click Here</button>
+);
+}
+export default WarningButton;
+```
+1. Inline event handlers aren’t reusable. 
+2. Inline event handlers can be difficult to read and they reduce the organization of your code.
+3.  Inline event handlers are re-­created every time the component re-­renders. In function com‑ ponents, this is what happens to all inner functions. But, in class components, inline event handlers may affect performance, although the effect is not likely to be noticeable, and prematurely optimizing your code for this kind of problem before you have it will cause you more problems (in terms of time wasted alone) than it solves.
+### Forms
+###### 1. How to Use Form Components in React with One-Way Data Flow
+One-way Data Flow / Controlled Input
+```jsx
+function MyForm() {
+  const [name, setName] = React.useState('');
+
+  const handleChange = (e) => {
+    setName(e.target.value); // React controls the value
+  };
+
+  return (
+    <input type="text" value={name} onChange={handleChange} />
+  );
+}
+
+```
+React controls the input:
+- You type → `onChange` triggers → `setName()` updates state → `value` updates.
+###### Controlled vs Uncontrolled Inputs
+
+|Type|Description|
+|---|---|
+|**Controlled**|React manages input state via `useState`.|
+|**Uncontrolled**|DOM manages state (you use `ref` to get values).|
+controlled`<input value={value} onChange={e => setValue(e.target.value)} />`
+Uncontrolled
+```jsx
+const inputRef = React.useRef();
+const handleSubmit = () => {
+  alert(inputRef.current.value);
+};
+return <input ref={inputRef} />;
+
+```
+**Controlled is preferred in React for consistency and validation.**
+```jsx
+function SignupForm() {
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log({ email, name }); // You can now send this to a server
+  };
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+      <input type="text" value={name} onChange={e => setName(e.target.value)} />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+
+```
+##### Native HTML form elements (like `<input>`, `<select>`, `<textarea>`) manage their own internal state.
+- - You can type into them directly, and they update themselves — **two-way data binding**.
+    - HTML handles it by default, no JS needed.
+- In **React**, this behavior is **discouraged** in favor of **one-way data flow**
+    - UI → triggers events → updates React state → React updates UI.
+    - This makes app logic predictable and state easier to track/debug.
+- But React **doesn’t force you** to use one-way flow for everything.
+    - You can choose between:
+        - **Controlled components** (React fully manages state)
+        - **Uncontrolled components** (browser manages state, React accesses it when needed)
+##### Controlled vs Uncontrolled Inputs in React
+
+|Controlled Input|Uncontrolled Input|
+|---|---|
+|Uses `value` and `onChange`|Uses `ref` or just lets the DOM handle it|
+|React state controls the input value|DOM keeps the input's internal state|
+|Suitable for validation, tracking, logic|Simpler forms, when tracking every keystroke isn’t needed|
+|Slower with large forms|Faster for basic input capturing|
+**Controlled Input Example** (React handles state)
+```jsx
+function ControlledForm() {
+  const [email, setEmail] = React.useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Submitted email:", email);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Enter email"
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+
+```
+**Uncontrolled Input Example** (DOM handles state)
+```jsx
+function UncontrolledForm() {
+  const emailRef = React.useRef();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Submitted email:", emailRef.current.value);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        name="email"
+        ref={emailRef}
+        placeholder="Enter email"
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+
+```
+
+
+
+## Error Boundaries
+An **Error Boundary** is a **special React component** that catches **JavaScript errors** in any of its **child components**, during:
+- Rendering,    
+- In lifecycle methods,
+- And in constructors of the child components.
+Instead of the whole React app **crashing and going blank**, the error boundary:
+- Displays a **fallback UI** (like an error message or a retry button),
+- Prevents the error from propagating upward,
+- Optionally logs the error for debugging.
+
+> Think of an error boundary as a “crash helmet” for parts of your React component tree.
+
+###### Why Error Boundaries Are Needed
+By **default**, if any component throws an error, React **unmounts the entire component tree**, and your users see **nothing**.
+```html
+<App>
+  <NavBar />
+  <Main />   // <-- If this crashes, entire <App> disappears
+  <Footer />
+</App>
+```
+If `<Main />` fails to render (e.g., missing a required prop or failed API response), the **whole UI goes blank** unless we catch it with an Error Boundary.
+###### Error Boundary — The Fix
+Step-by-Step Functional Error Boundary
+`npm install react-error-boundary`
