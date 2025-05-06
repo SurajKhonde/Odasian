@@ -2057,9 +2057,7 @@ ON users.id = orders.user_id;
 1️⃣ The `WITH` Statement Starts a **CTE**
 
 A Common Table Expression (CTE) is a temporary result set that can be referenced within a `SELECT`, `INSERT`, `UPDATE`, or `DELETE` statement. It makes complex queries more readable and modular.
-
 ### **Why use** `**WITH floating_profit AS (...**`**)?**
-
 In your query, the `WITH` statement creates a **temporary table** called `floating_profit`. This CTE calculates the **unrealized profit/loss** for users and stores it so it can be used later in the main query.
 
 ```sql
@@ -2176,11 +2174,8 @@ ORDER BY
 ```
 
 - This part **calculates unrealized profit/loss** for each user and stores it in `floating_profit`.
-
 - The `**ROUND(SUM(...), 2)**` ensures the values are formatted properly.
-
 - **The CTE is like a temporary table**—we can use it later in the main query.
-
 ```sql
 LEFT JOIN floating_profit fp ON u.id = fp.user_i
 ```

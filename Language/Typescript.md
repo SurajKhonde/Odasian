@@ -48,7 +48,7 @@ Types
 TypeScript is optionally statically typed; this means that types are checked automatically to prevent accidental assignments of invalid values. It is possible to opt out of this by declaring dynamic variables.  
 Static type checking reduces errors caused by accidental misuse of types  
 **Type Annotations**
-![[image 1.png]]
+![[Language/languageImages/image 1.png]]
 `const name: string = 'Steve';`
 TypeScript provides a **rich type system** that allows for precise type annotations. Here’s a breakdown of the different type options:
 **1. Primitive Types**
