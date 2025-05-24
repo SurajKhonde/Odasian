@@ -419,7 +419,42 @@ for (let i = 0; i < 3; i++) { // shows 0, then 1, then 2
   alert(i); // 0, 1, 2
 }
 alert(i); // error, no such variable
-###### Skipping parts
+##### for of loop
+There is another loop we can use to iterate over the elements of an array: the for of loop. It cannot be used to change the value associated with the index as we can do with the regular loop, but for processing values it is a very nice and readable loop
+```js
+let arr = [some array];
+for (let variableName of arr) {
+ // code to be executed
+ // value of variableName gets updated every iteration
+ // all values of the array will be variableName once
+}
+let names = ["Chantal", "John", "Maxime", "Bobbi", "Jair"];
+for (let name of names){
+ console.log(name);
+}
+```
+##### for in loop
+Manipulating objects with loops can also be done with another variation of the for loop, the for in loop. The for in loop is somewhat similar to the for of loop. Again here, we need to specify a temporary name, also referred to as a key, to store each property name in
+
+```js
+let car = {
+ model: "Golf",
+ make: "Volkswagen",
+ year: 1999,
+ color: "black",
+};
+for (let prop in car){
+ console.log(car[prop]);
+}
+ // Golf Volkswagen 1999 black
+ for (let prop in car){
+ console.log(prop);
+}
+// model make year color
+```
+
+
+	###### Skipping parts`
 Any part of for can be skipped.
 For example, we can omit begin if we don’t need to do anything at the loop start.
 ```javascript
@@ -2595,7 +2630,535 @@ alert( user.friends[1] ); // 1
 ```
 
 ### Advanced working with functions
-#### Recursion and stack
+### Recursion and stack
 When a function solves a task, in the process it can call many other functions. A partial case of this is when a function calls itself. That’s called `recursion`.
 
 ###### Two ways of thinking
+For something simple to start with – let’s write a function `pow(x, n)` that raises `x` to a natural power of `n`. In other words, multiplies `x` by itself `n` times.
+```math
+pow(2, 2) = 4
+pow(2, 3) = 8
+pow(2, 4) = 16
+```
+There are two ways to implement it.
+  1. 1.Iterative thinking: the `for` loop:
+  ```js
+  function pow(x, n) {
+  let result = 1;
+  // multiply result by x n times in the loop
+  for (let i = 0; i < n; i++) {
+    result *= x;
+  }
+  return result;
+}
+alert( pow(2, 3) ); // 8
+```
+Recursive thinking: simplify the task and call self:
+```js
+function pow(x, n) {
+  if (n == 1) {
+    return x;
+  } else {
+    return x * pow(x, n - 1);
+  }
+}
+
+alert( pow(2, 3) ); // 
+```
+### Rest parameters and spread syntax
+#### Rest parameters ...
+A function can be called with any number of arguments, no matter how it is defined.
+```js
+function sum(a, b) {
+  return a + b;
+}
+
+alert( sum(1, 2, 3, 4, 5) );
+```
+There will be no error because of “excessive” arguments. But of course in the result only the first two will be counted, so the result in the code above is `3`.
+The rest of the parameters can be included in the function definition by using three dots `...` followed by the name of the array that will contain them. The dots literally mean “gather the remaining parameters into an array”.
+```js
+function sumAll(...args) { // args is the name for the array
+  let sum = 0;
+
+  for (let arg of args) sum += arg;
+
+  return sum;
+}
+
+alert( sumAll(1) ); // 1
+alert( sumAll(1, 2) ); // 3
+alert( sumAll(1, 2, 3) ); // 6
+```
+>[!danger]
+>**The rest parameters must be at the end**
+The rest parameters gather all remaining arguments, so the following does not make sense and causes an error:
+
+The `...rest` must always be last.
+
+#### Spread 
+```js
+let str = "Hello";
+alert( [...str] ); // H,e,l,l,o
+```
+The spread syntax internally uses iterators to gather elements, the same way as `for..of` does.
+So, for a string, `for..of` returns characters and `...str` becomes `"H","e","l","l","o"`. The list of characters is passed to array initializer `[...str]`.
+For this particular task we could also use `Array.from`, because it converts an iterable (like a string) into an array:
+```js
+let str = "Hello";
+// Array.from converts an iterable into an array
+alert( Array.from(str) ); // H,e,l,l,o
+```
+##### Copy an array/object
+```js
+let arr = [1, 2, 3];
+let arrCopy = [...arr]; // spread the array into a list of parameters
+                        // then put the result into a new array
+
+// do the arrays have the same contents?
+alert(JSON.stringify(arr) === JSON.stringify(arrCopy)); // true
+// are the arrays equal?
+alert(arr === arrCopy); // false (not same reference)
+// modifying our initial array does not modify the copy:
+arr.push(4);
+alert(arr); // 1, 2, 3, 4
+alert(arrCopy); // 1, 2, 3
+```
+Note that it is possible to do the same thing to make a copy of an object:
+```js
+let obj = { a: 1, b: 2, c: 3 };
+let objCopy = { ...obj }; // spread the object into a list of parameters
+                          // then return the result in a new object
+
+// do the objects have the same contents?
+alert(JSON.stringify(obj) === JSON.stringify(objCopy)); // true
+// are the objects equal?
+alert(obj === objCopy); // false (not same reference)
+// modifying our initial object does not modify the copy:
+obj.d = 4;
+alert(JSON.stringify(obj)); // {"a":1,"b":2,"c":3,"d":4}
+alert(JSON.stringify(objCopy)); // {"a":1,"b":2,"c":3}
+```
+
+### Variable scope, closure
+##### Code blocks
+If a variable is declared inside a code block `{...}`, it’s only visible inside that block.
+```js
+{
+  // do some job with local variables that should not be seen outside
+  let message = "Hello"; // only visible in this block
+  alert(message); // Hello
+}
+alert(message); // Error: message is not defined
+```
+We can use this to isolate a piece of code that does its own task, with variables that only belong to it:
+```js
+{
+  // show message
+  let message = "Hello";
+  alert(message);
+}
+{
+  // show another message
+  let message = "Goodbye";
+  alert(message);
+}
+```
+##### There’d be an error without blocks
+```js
+// show message
+let message = "Hello";
+alert(message);
+
+// show another message
+let message = "Goodbye"; // Error: variable already declared
+alert(message);
+```
+###### For if, for, while and so on, variables declared in {...} are also only visible inside:
+```js
+if (true) {
+  let phrase = "Hello!";
+
+  alert(phrase); // Hello!
+}
+
+alert(phrase); // Error, no such variable!
+
+for (let i = 0; i < 3; i++) {
+  // the variable i is only visible inside this for
+  alert(i); // 0, then 1, then 2
+}
+
+alert(i); // Error, no such variable
+```
+##### Nested functions
+```js
+function sayHiBye(firstName, lastName) {
+  // helper nested function to use below
+  function getFullName() {
+    return firstName + " " + lastName;
+  }
+  alert( "Hello, " + getFullName() );
+  alert( "Bye, " + getFullName() );
+
+}
+```
+##### Lexical Environment
+###### Step 1. Variables
+In JavaScript, every running function, code block `{...}`, and the script as a whole have an internal (hidden) associated object known as the _Lexical Environment_.
+The Lexical Environment object consists of two parts:
+1. _Environment Record_ – an object that stores all local variables as its properties (and some other information like the value of `this`).
+2. A reference to the _outer lexical environment_, the one associated with the outer code.
+>[!note]
+>A “variable” is just a property of the special internal object, Environment Record. “To get or change a variable” means “to get or change a property of that object”.
+
+In this simple code without functions, there is only one Lexical Environment:![[Pasted image 20250511230415.png]]
+This is the so-called _global_ Lexical Environment, associated with the whole script.
+On the picture above, the rectangle means Environment Record (variable store) and the arrow means the outer reference. The global Lexical Environment has no outer reference, that’s why the arrow points to `null`.
+![[Pasted image 20250511230528.png]]
+Rectangles on the right-hand side demonstrate how the global Lexical Environment changes during the execution:
+1. When the script starts, the Lexical Environment is pre-populated with all declared variables.
+    - Initially, they are in the “Uninitialized” state. That’s a special internal state, it means that the engine knows about the variable, but it cannot be referenced until it has been declared with `let`. It’s almost the same as if the variable didn’t exist.
+2. Then `let phrase` definition appears. There’s no assignment yet, so its value is `undefined`. We can use the variable from this point forward.
+3. `phrase` is assigned a value.
+4. `phrase` changes the value.
+Everything looks simple for now, right?
+- A variable is a property of a special internal object, associated with the currently executing block/function/script.
+- Working with variables is actually working with the properties of that object.
+###### Step 2. Function Declarations
+A function is also a value, like a variable.
+**The difference is that a Function Declaration is instantly fully initialized.**
+When a Lexical Environment is created, a Function Declaration immediately becomes a ready-to-use function (unlike `let`, that is unusable till the declaration).
+That’s why we can use a function, declared as Function Declaration, even before the declaration itself.
+![[Pasted image 20250511231152.png]]Naturally, this behavior only applies to Function Declarations, not Function Expressions where we assign a function to a variable, such as `let say = function(name)...`.
+###### Step 3. Inner and outer Lexical Environment
+When a function runs, at the beginning of the call, a new Lexical Environment is created automatically to store local variables and parameters of the call.
+For instance, for `say("John")`, it looks like this (the execution is at the line, labelled with an arrow):
+![[Pasted image 20250511231402.png]]
+During the function call we have two Lexical Environments: the inner one (for the function call) and the outer one (global):
+
+- The inner Lexical Environment corresponds to the current execution of `say`. It has a single property: `name`, the function argument. We called `say("John")`, so the value of the `name` is `"John"`.
+- The outer Lexical Environment is the global Lexical Environment. It has the `phrase` variable and the function itself.
+
+The inner Lexical Environment has a reference to the `outer` one.
+**When the code wants to access a variable – the inner Lexical Environment is searched first, then the outer one, then the more outer one and so on until the global one.**
+If a variable is not found anywhere, that’s an error in strict mode (without `use strict`, an assignment to a non-existing variable creates a new global variable, for compatibility with old code).
+In this example the search proceeds as follows:
+- For the `name` variable, the `alert` inside `say` finds it immediately in the inner Lexical Environment.
+- When it wants to access `phrase`, then there is no `phrase` locally, so it follows the reference to the outer Lexical Environment and finds it there.
+![[Pasted image 20250511232106.png]]
+###### Step 4. Returning a function
+Let’s return to the `makeCounter` example.
+```js
+function makeCounter() {
+  let count = 0;
+
+  return function() {
+    return count++;
+  };
+}
+let counter = makeCounter();
+```
+At the beginning of each `makeCounter()` call, a new Lexical Environment object is created, to store variables for this `makeCounter` run.
+So we have two nested Lexical Environments, just like in the example above:
+![[Pasted image 20250511232348.png]]
+What’s different is that, during the execution of `makeCounter()`, a tiny nested function is created of only one line: `return count++`. We don’t run it yet, only create.
+
+All functions remember the Lexical Environment in which they were made. Technically, there’s no magic here: all functions have the hidden property named `[[Environment]]`, that keeps the reference to the Lexical Environment where the function was created:
+![[Pasted image 20250511232524.png]]
+So, `counter.[[Environment]]` has the reference to `{count: 0}` Lexical Environment. That’s how the function remembers where it was created, no matter where it’s called. The `[[Environment]]` reference is set once and forever at function creation time.
+
+Later, when `counter()` is called, a new Lexical Environment is created for the call, and its outer Lexical Environment reference is taken from `counter.[[Environment]]`:
+![[Pasted image 20250511232949.png]]Now when the code inside `counter()` looks for `count` variable, it first searches its own Lexical Environment (empty, as there are no local variables there), then the Lexical Environment of the outer `makeCounter()` call, where it finds and changes it.
+
+**A variable is updated in the Lexical Environment where it lives.**
+Here’s the state after the execution:
+![[Pasted image 20250511233039.png]]If we call `counter()` multiple times, the `count` variable will be increased to `2`, `3` and so on, at the same place.
+>[!Information] Closure
+>There is a general programming term “`closure`”, that developers generally should know.
+A closure is a function that remembers its outer variables and can access them. In some languages, that’s not possible, or a function should be written in a special way to make it happen. But as explained above, in JavaScript, all functions are naturally closures
+
+##### Garbage collection
+Usually, a Lexical Environment is removed from memory with all the variables after the function call finishes. That’s because there are no references to it. As any JavaScript object, it’s only kept in memory while it’s reachable.
+However, if there’s a nested function that is still reachable after the end of a function, then it has `[[Environment]]` property that references the lexical environment.
+In that case the Lexical Environment is still reachable even after the completion of the function, so it stays alive.
+```js
+function f() {
+  let value = 123;
+
+  return function() {
+    alert(value);
+  }
+}
+
+let g = f(); // g.[[Environment]] stores a reference to the Lexical Environment
+// of the corresponding f() call
+```
+Please note that if `f()` is called many times, and resulting functions are saved, then all corresponding Lexical Environment objects will also be retained in memory.
+```js
+function f() {
+  let value = Math.random();
+
+  return function() { alert(value); };
+}
+
+// 3 functions in array, every one of them links to Lexical Environment
+// from the corresponding f() run
+let arr = [f(), f(), f()];
+```
+A Lexical Environment object dies when it becomes unreachable (just like any other object). In other words, it exists only while there’s at least one nested function referencing it.
+
+after the nested function is removed, its enclosing Lexical Environment (and hence the `value`) is cleaned from memory:
+```js
+function f() {
+  let value = 123;
+
+  return function() {
+    alert(value);
+  }
+}
+
+let g = f(); // while g function exists, the value stays in memory
+
+g = null; // ...and now the memory is cleaned up
+```
+
+### Global object
+The global object provides variables and functions that are available anywhere. By default, those that are built into the language or the environment.
+In a browser it is named `window`, for Node.js it is `global`, for other environments it may have another name.
+Recently, `globalThis` was added to the language, as a standardized name for a global object, that should be supported across all environments. It’s supported in all major browsers.
+We’ll use `window` here, assuming that our environment is a browser. If your script may run in other environments, it’s better to use `globalThis` instead.
+```js
+alert("Hello");
+// is the same as
+window.alert("Hello");
+```
+In a browser, global functions and variables declared with `var` (not `let/const`!) become the property of the global object:
+```js
+var gVar = 5;
+alert(window.gVar); // 5 (became a property of the global object)
+```
+Function declarations have the same effect (statements with function keyword in the main code flow, not function expressions).
+Please don’t rely on that! This behavior exists for compatibility reasons. Modern scripts use JavaScript modules where such a thing doesn’t happen.
+If we used let instead, such thing wouldn’t happen:
+```js
+let gLet = 5;
+alert(window.gLet); // undefined (doesn't become a property of the global object)
+```
+If a value is so important that you’d like to make it available globally, write it directly as a property:
+```js
+// make current user information global, to let all scripts access it
+window.currentUser = {
+  name: "John"
+};
+// somewhere else in code
+alert(currentUser.name);  // John
+// or, if we have a local variable with the name "currentUser"
+// get it from window explicitly (safe!)
+alert(window.currentUser.name); // John
+```
+That said, using global variables is generally discouraged. There should be as few global variables as possible. The code design where a function gets “input” variables and produces certain “outcome” is clearer, less prone to errors and easier to test than if it uses outer or global variables.
+### Function object, NFE
+As we already know, a function in JavaScript is a value.
+Every value in JavaScript has a type. What type is a function?
+In JavaScript, functions are `objects`.
+A good way to imagine functions is as callable “action objects”. We can not only call them, but also treat them as objects: add/remove properties, pass by reference etc.
+##### The “name” property
+Function objects contain some useable properties.
+For instance, a function’s name is accessible as the “name” property:
+```js
+function sayHi() {
+  alert("Hi");
+}
+alert(sayHi.name); // sayHi
+```
+What’s kind of funny, the name-assigning logic is smart. It also assigns the correct name to a function even if it’s created without one, and then immediately assigned:
+```js
+let sayHi = function() {
+  alert("Hi");
+};
+alert(sayHi.name); // sayHi (there's a name!)
+```
+It also works if the assignment is done via a default value:
+```js
+function f(sayHi = function() {}) {
+  alert(sayHi.name); // sayHi (works!)
+}
+f();
+```
+In the specification, this feature is called a “`contextual name`”. If the function does not provide one, then in an assignment it is figured out from the context.
+```js
+let user = {
+  sayHi() {
+    // ...
+  },
+  sayBye: function() {
+    // ...
+  }
+}
+alert(user.sayHi.name); // sayHi
+alert(user.sayBye.name); // sayBye
+```
+There’s no magic though. There are cases when there’s no way to figure out the right name. In that case, the name property is empty, like here:
+```js
+// function created inside array
+let arr = [function() {}];
+alert( arr[0].name ); // <empty string>
+// the engine has no way to set up the right name, so there is none
+```
+##### The “length” property
+There is another built-in property “length” that returns the number of function parameters, for instance:
+```js
+function f1(a) {}
+function f2(a, b) {}
+function many(a, b, ...more) {}
+
+alert(f1.length); // 1
+alert(f2.length); // 2
+alert(many.length); // 2
+```
+### Classes
+if classes do the exact same thing as simply defining an object, why do we even need classes? The answer is that classes are essentially blueprints for object creation. This means that we need to do much less typing if we need to create 20 dogs when we have a dog class. If we have to create the objects, we will have to specify all the properties' names each time. And it would be easy to make a typo and misspell a property name. Classes come in handy in these sorts of situations.
+####  Constructors
+The `constructor` method is a special method that we use to initialize objects with our class blueprint. There can only be one constructor in a class. This constructor contains properties that will be set when initiating the class.
+```js
+class Person {
+ constructor(firstname, lastname) {
+ this.firstname = firstname;
+ this.lastname = lastname;
+ }
+}
+let p = new Person("Maaike", "van Putten");
+```
+The new word is what tells JavaScript to look for the special constructor function in the Person class and create a new object. The constructor gets called and returns an instance of the person object with the specified properties. This object gets stored in the p variable
+`console.log("Hi", p.firstname);`
+*What do you think will happen when we create a class without all of the properties?*
+`let p = new Person("Maaike");`
+Many languages would crash, but not JavaScript. It just sets the remaining properties to undefined.
+`console.log("Hi", p.firstname, p.lastname);`
+`Hi Maaike undefined`
+**You can specify default values in constructor. You would do it like this:**
+```js
+constructor(firstname, lastname = "Doe") {
+ this.firstname = firstname;
+ this.lastname = lastname;
+ }
+```
+This way, it would not have printed Hi Maaike undefined, but Hi Maaike Doe.
+#### Methods
+In a class, we can specify functions. This means that our object can start doing things using the object's own properties—for example, printing a name. Functions on a class are called `methods`. When defining these methods, we don't use the function keyword.
+```js
+class Person {
+ constructor(firstname, lastname) {
+ this.firstname = firstname;
+ this.lastname = lastname;
+ }
+ greet() {
+ console.log("Hi there! I'm", this.firstname);
+ }
+}
+```
+We can call the greet method on a Person object like this:
+```js
+let p = new Person("Maaike", "van Putten");
+p.greet();
+```
+#### Properties
+Properties, sometimes also called fields, hold the data of the class. We have seen one kind of property already
+```js
+class Person {
+ constructor(firstname, lastname) {
+ this.firstname = firstname;
+ this.lastname = lastname;
+ }
+}
+```
+the Person class gets two properties from the constructor: firstname and lastname. Properties can be added or removed just like we did for objects. These properties can be accessed from outside the class, as we saw when we logged them outside the class by accessing them on the instance:
+```js
+let p = new Person("Maaike", "van Putten");
+console.log("Hi", p.firstname);
+```
+it is not desirable to provide direct access to our properties. We want our class to be in control of the values of properties for several reasons—perhaps we want to do validation on a property to assure it has a certain value. For example, imagine wanting to validate an age as not being lower than 18. We can achieve this by making direct access to the property from outside the class impossible.
+This is how to add properties that aren't accessible from outside. We prefix them with a `#` symbol:
+```js
+class Person {
+ #firstname;
+ #lastname;
+  constructor(firstname, lastname) {
+ this.#firstname = firstname;
+ this.#lastname = lastname;
+ }
+}
+```
+Right now, the firstname and lastname properties cannot be accessed from outside the class. This is done by adding # in front of the property
+```js
+let p = new Person("Maria", "Saga");
+console.log(p.firstname);  //undefined
+
+```
+#### Inheritance
+Inheritance is one of the key concepts of OOP. It is the concept that classes can have child classes that inherit the properties and methods from the parent class. For example, if you needed all sorts of vehicle objects in your application, you could specify a class named Vehicle in which you specify some shared properties and methods of vehicles. You would then go ahead and create the specific child classes based on this Vehicle class, for example, boat, car, bicycle, and motorcycle.
+```js
+class Vehicle {
+ constructor(color, currentSpeed, maxSpeed) {
+ this.color = color;
+ this.currentSpeed = currentSpeed;
+ this.maxSpeed = maxSpeed;
+ }
+ move() {
+ console.log("moving at", this.currentSpeed);
+ }
+ accelerate(amount) {
+ this.currentSpeed += amount;
+ }
+}
+```
+Here we have two methods in our Vehicle class: move and accelerate. And this could be a Motorcyle class inheriting from this class using the extends keyword:
+```js
+class Motorcycle extends Vehicle {
+ constructor(color, currentSpeed, maxSpeed, fuel) {
+ super(color, currentSpeed, maxSpeed);
+ this.fuel = fuel;
+ }
+ doWheelie() {
+ console.log("Driving on one wheel!");
+ }
+}
+```
+With the extends keyword we specify that a certain class is the child of another class. In this case, Motorcycle is a child class of Vehicle. This means that we'll have access to properties and methods from Vehicle in our Motorcycle class. We have added a special `doWheelie()` method. This is not something that makes sense to add to the Vehicle class, because this is an action that is specific to certain vehicles.
+The super word in the constructor is calling the constructor from the parent, the Vehicle constructor in this case. This makes sure that the fields from the parent are set as well and that the methods are available without having to do anything else: they are automatically inherited. Calling super() is not optional, you must do it when you are in a class that is inheriting from another class, else you will get a `ReferenceError`.
+```js
+let motor = new Motorcycle("Black", 0, 250, "gasoline");
+console.log(motor.color);
+motor.accelerate(50);
+motor.move();
+```
+#### Prototypes
+A prototype is the mechanism in JavaScript that makes it possible to have objects. When nothing is specified when creating a class, the objects inherit from the Object.prototype prototype. This is a rather complex built-in JavaScript class that we can use. We don't need to look at how this is implemented in JavaScript, as we can consider it the base object that is always on top of the inheritance tree and therefore always present in our objects. There is a prototype property available on all classes, and it is always named "prototype."
+`ClassName.prototype`
+```js
+class Person {
+ constructor(firstname, lastname) {
+ this.firstname = firstname;
+ this.lastname = lastname;
+ }
+ greet() {
+ console.log("Hi there!");
+ }
+}
+```
+And here is how to add a function to this class using prototype:
+```js
+Person.prototype.introduce = function () {
+ console.log("Hi, I'm", this.firstname);
+};
+```
+prototype is a property holding all the properties and methods of an object. So, adding a function to prototype is adding a function to the class. You can use prototype to add properties or methods to an object, like we did in the above example in our code with the introduce function.
+```js
+Person.prototype.favoriteColor = "green";
+let p = new Person("Maria", "Saga");
+console.log(p.favoriteColor);
+p.introduce();
+//green 
+//Hi, I'm Maria
+```

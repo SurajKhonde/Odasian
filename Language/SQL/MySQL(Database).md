@@ -370,15 +370,154 @@ SELECT * FROM stack WHERE id BETWEEN 2 and 5;
 ##### `SELECT` with `WHERE`
 ```sql
 SELECT * FROM stack WHERE username = "admin" AND password = "admin";
+
 ```
+##### `SELECT` with `LIKE(_)`
+A _ character in a LIKE clause pattern matches a single character.
+```sql
+SELECT username FROM users WHERE users LIKE 'admin_';
+```
+##### `SELECT` with `date range`
+```sql
+SELECT ... WHERE dt >= '2017-02-01'
+ AND dt < '2017-02-01' + INTERVAL 1 MONTH
+```
+Sure, this could be done with BETWEEN and inclusion of 23:59:59. But, the pattern has this benefits:
+- You don't have pre-calculate the end date (which is often an exact length from the start)
+- You don't include both endpoints (as BETWEEN does), nor type '23:59:59' to avoid it.
+- It works for `DATE`, `TIMESTAMP`, `DATETIME`, and even the microsecond-included `DATETIME(6).`
+- It takes care of leap days, end of year, etc.
+- It is index-friendly (so is BETWEEN).
+##### GROUP BY
+```sql
+SELECT student_name, AVG(test_score) FROM student GROUP BY group
+```
+To make sure you don't get an error in your query you have to use backticks so your query becomes:
+```sql
+SELECT student_name, AVG(test_score) FROM student GROUP BY `group`
+```
+
+##### INSERT
+```js
+const mysqlQuery = `
+  INSERT INTO users (mobile_number, name, age, birthday)
+  VALUES (?, ?, ?, ?)
+  ON DUPLICATE KEY UPDATE
+    name = VALUES(name),
+    age = VALUES(age),
+    birthday = VALUES(birthday)
+`
+const values = ["9876543210", "Suraj", 25, "2000-01-01"];
+const [result] = await db.query(mysqlQuery, values); 
+```
+##### DELETE
+```SQL
+---एक साधारण DELETE
+DELETE FROM users
+WHERE age > 60;
+
+---LIMIT और ORDER BY के साथ
+DELETE FROM logs
+ORDER BY created_at ASC
+LIMIT 100;
+----Delete all rows from a table
+DELETE FROM table_name ;
+----LIMITing deletes
+DELETE FROM `table_name` WHERE `field_one` = 'value_one' LIMIT 1
+```
+##### UPDATE
+```SQL
+--- Basic Update
+UPDATE customers SET email='luke_smith@email.com' WHERE id=1
+--- Updating all rows
+UPDATE customers SET lastname='smith'
+---Bulk UPDATE
+UPDATE people SET name = (CASE id WHEN 1 THEN 'Karl' WHEN 2 THEN 'Tom' WHEN 3 THEN 'Mary' END) WHERE id IN (1,2,3);
+
+```
+##### Group By
+```SQL
+SELECT department, COUNT(*) AS "Man_Power" FROM employees GROUP BY department HAVING COUNT(*) >= 10;
+
+SELECT department, MIN(salary) AS "Lowest salary" FROM employees GROUP BY department;
+```
+
+#### Joins
+
+
+![[Pasted image 20250506145015.png]]
+
+```SQL
+SELECT x, ... FROM ( SELECT y, ... FROM ... ) AS a JOIN tbl ON tbl.x = a.y WHERE ...
+SELECT ... FROM ( SELECT y, ... FROM ... ) AS a JOIN ( SELECT x, ... FROM ... ) AS b ON b.x = a.y WHERE .
+```
+##### FULL OUTER JOIN क्या होता है?
+MySQL does not support the FULL OUTER JOIN, but there are ways to emulate one.
+- सभी **left table** के records,
+- सभी **right table** के records,
+- और उनके बीच जो common match है वो भी।
+ MySQL में `FULL OUTER JOIN` **सीधे सपोर्ट नहीं** करता, इसलिए हमें इसे `LEFT JOIN + RIGHT JOIN` के ज़रिये **simulate (बनावटी रूप)** से करना होता है।
+ ```SQL
+ -- Full Outer Join MySQL में सीधे नहीं होता
+-- LEFT JOIN + RIGHT JOIN का UNION ALL यूज़ करते हैं
+SELECT o.owner, t.tool
+FROM owners o
+LEFT JOIN tools t ON o.owner_id = t.owner_id
+UNION ALL
+SELECT o.owner, t.tool
+FROM owners o
+RIGHT JOIN tools t ON o.owner_id = t.owner_id
+WHERE o.owner_id IS NULL;
+```
+**याद रखने का तरीका**:
+- LEFT JOIN से owners के साथ tools निकालो
+- RIGHT JOIN से tools जिनके पास कोई owner नहीं, उन्हें निकालो
+- UNION ALL से दोनों को जोड़ दो = FULL OUTER JOIN 
+##### INNER JOIN
+**क्या करता है:**  
+सिर्फ वही रिकॉर्ड्स दिखाता है जो दोनों टेबल्स में मैच करते हैं।
+**कब इस्तेमाल करें:**  
+जब आपको सिर्फ वही डेटा चाहिए जहाँ दोनों टेबल्स के बीच रिलेशन (मैच) हो।
+```SQL
+SELECT users.name, orders.product
+FROM users
+INNER JOIN orders ON users.id = orders.user_id;
+```
+
+##### LEFT JOIN (या LEFT OUTER JOIN)
+**क्या करता है:**  
+बायीं टेबल (पहली टेबल) के सारे रिकॉर्ड्स दिखाता है, और यदि दूसरी टेबल से कोई मैच नहीं मिला, तो NULL देता है।
+**कब इस्तेमाल करें:**  
+जब आपको पहली टेबल का पूरा डेटा चाहिए, चाहे दूसरी टेबल से मैच हो या ना हो।
+```SQL
+SELECT users.name, orders.product
+FROM users
+LEFT JOIN orders ON users.id = orders.user_id;
+```
+यह दिखाएगा कि सभी users और जिन्होंने ऑर्डर नहीं किया उनके लिए product में NULL होगा।
+
+##### RIGHT JOIN (या RIGHT OUTER JOIN)
+**क्या करता है:**  
+दायीं टेबल (दूसरी टेबल) के सारे रिकॉर्ड्स दिखाता है, और यदि पहली टेबल से कोई मैच नहीं मिला, तो NULL देता है।
+**कब इस्तेमाल करें:**  
+जब आपको दूसरी टेबल का पूरा डेटा चाहिए, चाहे पहली टेबल से मैच हो या ना हो।
+
+```SQL
+SELECT users.name, orders.product
+FROM users
+RIGHT JOIN orders ON users.id = orders.user_id;
+
+```
+यह दिखाएगा कि सभी ऑर्डर्स और अगर किसी ऑर्डर के लिए कोई यूज़र नहीं मिला तो user में NULL आएगा।
+
+
+---
+---
+
 # DBMS(SQL)
 
-[😍famous words in sql](https://www.notion.so/famous-words-in-sql-1b07af54188580c3ab75ded523aa8914?pvs=21)
-
 This is bare minimum setup to connect with the **mysql** on your machine or **serverside**
-
 Step-by-Step Guide to Install **MySQL** & **phpMyAdmin** on Ubuntu (Latest Version)
-
 Step 1: Update Ubuntu Package List
 
 ```shell
@@ -410,43 +549,25 @@ sudo apt install phpmyadmin php-mbstring php-zip php-gd php-json php-curl -y
 - **Set a password for phpMyAdmin** (Enter a strong password)
 
 You'll be asked:
-
 1. **Enable VALIDATE PASSWORD plugin?** (Choose `Y` or `N`)
-
 2. **Set root password?** (Enter a strong password)
-
 3. **Remove anonymous users?** (Choose `Y`)
-
 4. **Disallow root login remotely?** (Choose `Y`)
-
 5. **Remove test database?** (Choose `Y`)
-
 6. **Reload privilege tables now?** (Choose `Y`)
-
-==Step 4: Allow Remote Access (Optional)==
-
+Step 4: Allow Remote Access (Optional)
 ```shell
 sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
 ```
-
-[![](DBMS(SQL)%201ad7af541885804e8eecd30e2e8af0c6/image.png)](DBMS\(SQL\)%201ad7af541885804e8eecd30e2e8af0c6/image.png)
-
 **bind-address = 127.0.0.1**
-
 ```shell
 bind-address = 0.0.0.0
 ```
-
-**📌 When to Use** `**127.0.0.1**` **in Production**
-
-✅ **Use** `**127.0.0.1**` **(localhost) if:**
-
+When to Use `**127.0.0.1**` in Production
+Use`**127.0.0.1**` (localhost) if:
 - Your **MySQL server** and **application** (e.g., Node.js, PHP) are **on the same server**.
-
 - You want to keep **MySQL private and prevent external access**.
-
 - Your application only needs **local database access**.
-
 **Example** `**config**` **for a production app using localhost MySQL:**
 
 ```shell
@@ -455,17 +576,12 @@ DB_USER=myappuser
 DB_PASSWORD=strongpassword
 DB_NAME=mydatabase
 ```
+** When NOT to Use** `**127.0.0.1**` **in Production**
 
-**📌 When NOT to Use** `**127.0.0.1**` **in Production**
-
-❌ **Do NOT use** `**127.0.0.1**` **if:**
-
+**Do NOT use** `**127.0.0.1**` **if:**
 - Your **application runs on a different server** than MySQL.
-
 - You need **remote database access** from another machine.
-
 - You're setting up a **load-balanced architecture** with multiple app servers.
-
 🔹 **Solution: Use a Private/Internal IP Instead**
 
 ```shell
@@ -477,28 +593,22 @@ Allow MySQL through the firewall:
       sudo ufw allow from 192.168.1.0/24 to any port 3306
 ```
 
-**📌 Summary**
+** Summary**
 
-|   |   |   |
-|---|---|---|
-|**Scenario**|**Use** `**127.0.0.1**`**?**|**Alternative**|
-|MySQL and app on the **same server**|✅ Yes|Keep MySQL private|
-|MySQL on a **different server**|❌ No|Use **private/internal IP**|
-|Need **remote database access**|❌ No|Allow MySQL on **private IP**|
-|**Public MySQL access (Not recommended)**|❌ No|Use **SSH tunnel or VPN**|
+|                                           |                              |                               |
+| ----------------------------------------- | ---------------------------- | ----------------------------- |
+| **Scenario**                              | **Use** `**127.0.0.1**`**?** | **Alternative**               |
+| MySQL and app on the **same server**      | Yes                          | Keep MySQL private            |
+| MySQL on a **different server**           | No                           | Use **private/internal IP**   |
+| Need **remote database access**           | No                           | Allow MySQL on **private IP** |
+| **Public MySQL access (Not recommended)** |  No                          | Use **SSH tunnel or VPN**     |
 
-**🚀 Best Practice for Production:**
-
-✅ Use **127.0.0.1** if MySQL is on the same machine.
-
-✅ Use a **private/internal IP** if MySQL is on a different server.
-
-❌ **Never expose MySQL on a public IP (**`**0.0.0.0**`**)** unless secured with a firewall.
-
-**Step 6: Configure Apache for phpMyAdmin**
-
+**Best Practice for Production:**
+ - Use **127.0.0.1** if MySQL is on the same machine.
+ - Use a **private/internal IP** if MySQL is on a different server.
+ - Never expose MySQL on a public IP (**`0.0.0.0`**) unless secured with a firewall.
+Step 6: Configure Apache for phpMyAdmin
 ✔ Choose "Local Unix Socket" (Recommended)
-
 ```shell
 sudo phpenmod mbstring
 sudo systemctl restart apache2
@@ -523,9 +633,7 @@ http://localhost/phpmyadmin/index.php?route=/&route=%2F&db=oneStop_apiHub&table=
 username :- phpmyadmin
 Password:- Abc@123!
 ```
-
-**Change MySQL Password Policy**
-
+Change MySQL Password Policy
 ```shell
 sudo mysql -u root -p
  //Check the current password policy settings:
@@ -536,9 +644,7 @@ SHOW VARIABLES LIKE 'validate_password%';
  // ALTER USER 'root'@'localhost' IDENTIFIED BY 'NewPassword123!';
 
 ```
-
 Choosing a MySQL Username for phpMyAdmin
-
 ```shell
 phpmyadmin  
 ⚠️ Important Notes
@@ -546,10 +652,9 @@ phpmyadmin
     phpmyadmin@yourdomain.com
 ```
 
-🚀 look now we are setup and basic details how myphpAdmin with MySQL server setup done lets see a queries and explaition why and how engineering behind it .
-
+ look now we are setup and basic details how myphpAdmin with MySQL server setup done lets see a queries and explaition why and how engineering behind it .
+ 
 **how to access Database connection in your code**
-
 ```javascript
 const db = require("../config/db");
 ```
@@ -736,11 +841,11 @@ Why **not simply 255?** There are two reasons to avoid the common practice of us
 
 **Best Practices Instead of Defaulting to** `**VARCHAR(255)**`
 
-✅ **Use the smallest necessary length.** If a column only ever holds two-character country codes (`US`, `GB`), use `CHAR(2)`. If names average 50 characters, use `VARCHAR(60)`, not `VARCHAR(255)`.
+**Use the smallest necessary length.** If a column only ever holds two-character country codes (`US`, `GB`), use `CHAR(2)`. If names average 50 characters, use `VARCHAR(60)`, not `VARCHAR(255)`.
 
-✅ **Know your character set.** `utf8mb4` takes up to **4 bytes per character**, while `latin1` only takes **1 byte**. This directly affects storage needs.
+ **Know your character set.** `utf8mb4` takes up to **4 bytes per character**, while `latin1` only takes **1 byte**. This directly affects storage needs.
 
-✅ **Consider TEXT for very long strings.** If storing long text (e.g., descriptions, comments), use `TEXT` types (`TEXT`, `MEDIUMTEXT`, `LONGTEXT`) instead of `VARCHAR(255)`.
+ **Consider TEXT for very long strings.** If storing long text (e.g., descriptions, comments), use `TEXT` types (`TEXT`, `MEDIUMTEXT`, `LONGTEXT`) instead of `VARCHAR(255)`.
 
 Using `VARCHAR(255)` everywhere might seem like a "safe" choice, but in reality, **it can slow down your queries, waste memory, and cause unexpected issues**. The best practice is to **choose the right size for each column based on actual data needs**.
 
@@ -754,12 +859,12 @@ Using `VARCHAR(255)` everywhere might seem like a "safe" choice, but in reality,
 
 **INT as AUTO_INCREMENT**
 
-Any size of **INT** may be used for ==AUTO_INCREMENT. UNSIGNED== is always appropriate.
+Any size of **INT** may be used for AUTO_INCREMENT. UNSIGNED is always appropriate.
 
 1. Any INT Size Can Be Used for AUTO_INCREMENT
 
-✅ MySQL allows TINYINT, SMALLINT, MEDIUMINT, INT, and BIGINT for AUTO_INCREMENT.  
-✅ UNSIGNED is recommended for AUTO_INCREMENT because IDs never go negative, doubling the available range.  
+ MySQL allows `TINYINT`, `SMALLINT`, `MEDIUMINT`, `INT`, and `BIGINT` for `AUTO_INCREMENT`.  
+ UNSIGNED is recommended for AUTO_INCREMENT because IDs never go negative, doubling the available range.  
 
 |   |   |   |
 |---|---|---|
@@ -823,20 +928,14 @@ CREATE TABLE users (
 MySQL offers a number of different numeric types. These can be broken down into  
 Group Types  
 Integer Types  
-==INTEGER, INT, SMALLINT, TINYINT, MEDIUMINT, BIGINT==
+INTEGER, INT, `SMALLINT`, `TINYINT`, `MEDIUMINT`, `BIGINT`
 
-Fixed Point Types ==DECIMAL, NUMERIC==
-
-Floating Point Types ==FLOAT, DOUBLE==
-
-Bit Value Type ==BIT==
-
-==**Integer Types**==
-
-[![](DBMS(SQL)%201ad7af541885804e8eecd30e2e8af0c6/image%201.png)](DBMS\(SQL\)%201ad7af541885804e8eecd30e2e8af0c6/image%201.png)
+Fixed Point Types DECIMAL, NUMERIC
+Floating Point Types FLOAT, DOUBLE
+Bit Value Type BIT
+**Integer Types**
 
 **Fixed Point Types**
-
 Decimal
 
 These values are stored in binary format. In a column declaration, the precision and scale should be specified.Precision represents the number of significant digits that are stored for values.
@@ -1165,8 +1264,7 @@ Instead of inserting values directly, you use `?` as a placeholder and provide a
 
 ✅ **More Readable Code**
 
-==**DELETE**==
-
+**DELETE**
 ```sql
 DELETE [LOW_PRIORITY] [IGNORE] FROM table_name 
 WHERE condition 
@@ -1174,7 +1272,7 @@ ORDER BY expression
 LIMIT number_rows;
 ```
 
-**🔹 Parameter Details**
+ Parameter Details
 
 |   |   |
 |---|---|
@@ -1198,7 +1296,7 @@ DELETE FROM employees;
 TRUNCATE TABLE employees;
 ```
 
-**🔹 Difference Between DELETE & TRUNCATE**
+ Difference Between DELETE & TRUNCATE
 
 |   |   |   |
 |---|---|---|
@@ -1210,7 +1308,6 @@ TRUNCATE TABLE employees;
 |Resets AUTO_INCREMENT?|❌ No|✅ Yes|
 
 **UPDATE**
-
 ```sql
 UPDATE table_name 
 SET column1 = value1, column2 = value2, ...
@@ -1218,7 +1315,6 @@ WHERE condition
 ORDER BY column
 LIMIT number;
 ```
-
 - `**SET**` → Specifies which columns to update.
 
 - `**WHERE**` → Specifies which rows to update (⚠️ Omitting it updates **ALL rows**).
@@ -1226,8 +1322,7 @@ LIMIT number;
 - `**ORDER BY**` → Updates records in a specific order.
 
 - `**LIMIT**` → Restricts the number of rows to update.
-
-🔸 Using `Promise.all()` to Update Multiple Records
+ Using `Promise.all()` to Update Multiple Records
 
 ```sql
 const mysql = require('mysql2/promise');
@@ -1266,20 +1361,13 @@ ORDER BY
 
 `SELECT ... FROM ... WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT ... OFFSET ...`
 
-**🔸 Breakdown:**
-
+ Breakdown:
 1. `**SELECT ...**` → Specifies which columns to return.
-
 2. `**FROM ...**` → Specifies the table to query.
-
 3. `**WHERE ...**` → Filters rows **before** grouping.
-
 4. `**GROUP BY ...**` → Groups rows based on a column.
-
 5. `**HAVING ...**` → Filters groups **after** grouping.
-
 6. `**ORDER BY ...**` → Sorts the result.
-
 7. `**LIMIT ... OFFSET ...**` → Limits results and supports pagination.
 
 ```sql
@@ -1292,20 +1380,13 @@ ORDER BY total_employees DESC
 LIMIT 10 OFFSET 20;
 ```
 
-**Group By**
-
-The `**GROUP BY**` clause in MySQL is used to group rows that have the **same values** in specified columns and apply **aggregate functions** like `COUNT()`, `SUM()`, `AVG()`, etc., to each group.
-
-- It groups rows **with the same value** in a column.
-
-- It is **always used with aggregate functions** like:
-    
+Group By
+The `GROUP BY` clause in MySQL is used to group rows that have the **same values** in specified columns and apply **aggregate functions** like `COUNT()`, `SUM()`, `AVG()`, etc., to each group.
+- It groups rows with the same value in a column.
+- It is always used with aggregate functions like:
     - `COUNT()` → Counts rows per group.
-    
-    - `SUM()` → Adds up values per group.
-    
+    - `SUM()` → Adds up values per group
     - `AVG()` → Finds the average per group.
-    
     - `MAX()` / `MIN()` → Finds max/min per group.
 
 1️⃣ Count Employees per Department
@@ -1325,16 +1406,11 @@ FROM employees
 GROUP BY department;
 ```
 
-`**GROUP BY**` **with** `**HAVING**`
-
-- `**WHERE**` **filters before grouping.**
-
-- `**HAVING**` **filters after grouping.**
-
-- Use `HAVING` when applying conditions to **aggregated results**.
-
+`GROUP BY` **with** `HAVING`
+- `WHERE` filters before grouping.
+- `HAVING` filters after grouping.
+- Use `HAVING` when applying conditions to aggregated results.
 Find Departments with More than 5 Employees
-
 ```sql
 SELECT department, COUNT(*) AS total_employees
 FROM employees
@@ -1347,8 +1423,7 @@ HAVING total_employees > 5;
 `GROUP BY` with Multiple Columns
 
 Find Employee Count per Department and Job Title
-
-### **Find Top-Selling Products**
+### Find Top-Selling Products
 
 ```sql
 SELECT product_id, SUM(quantity) AS total_sold
@@ -1357,8 +1432,7 @@ GROUP BY product_id
 ORDER BY total_sold DESC
 LIMIT 10;
 ```
-
-## **🚀 Summary Table**
+## Summary Table
 
 |   |   |   |
 |---|---|---|
@@ -1372,7 +1446,7 @@ LIMIT 10;
 |**With ORDER BY**|`ORDER BY total DESC`|Sorts grouped results.|
 |**With GROUP_CONCAT()**|`GROUP_CONCAT(name SEPARATOR ', ')`|Combines values into a string per group.|
 
-==**GROUP BY**== with AGGREGATE functions
+GROUP BY with AGGREGATE functions
 
 ```sql
 // COUNT() → Count Rows per Group
@@ -1392,8 +1466,7 @@ LIMIT 10;
    FROM employees
    GROUP BY department;
 ```
-
-## **🚀 Summary Table**
+##  Summary Table
 
 |   |   |   |
 |---|---|---|
@@ -1407,34 +1480,21 @@ LIMIT 10;
 |**Multiple Columns**|Groups by multiple criteria|`GROUP BY department, job_title`|
 |`**GROUP_CONCAT()**`|Combines values into a string|`GROUP_CONCAT(name)`|
 
-**MySQL Joins**
+MySQL Joins
+Types of Joins in MySQL
 
-**Types of Joins in MySQL**
+There are four main types of joins:
 
-There are **four main types** of joins:
+1. INNER JOIN → Returns matching rows from both tables.
 
-1. ==**INNER JOIN**== → Returns matching rows from both tables.
+2. LEFT JOIN(or LEFT OUTER JOIN) → Returns all rows from the left table + matching rows from the right table.
 
-2. ==**LEFT JOIN**== ==(or== ==**LEFT OUTER JOIN**====) → Returns all rows from the left table + matching rows from the right table.==
+3. RIGHT JOIN(or RIGHT OUTER JOIN) → Returns all rows from the right table + matching rows from the left table.
 
-3. ==**RIGHT JOIN**== ==(or== ==**RIGHT OUTER JOIN**====)== → Returns all rows from the right table + matching rows from the left table.
+4. FULL JOIN (or== FULL OUTER JOIN)→ Returns all rows from both tables (MySQL does not support this directly).
+###  Employees Table (`employees`)
 
-4. ==**FULL JOIN**== ==(or== ==**FULL OUTER JOIN**====)== → Returns all rows from both tables (MySQL does not support this directly).
-
-[![](DBMS(SQL)%201ad7af541885804e8eecd30e2e8af0c6/3bs7C.png)](DBMS\(SQL\)%201ad7af541885804e8eecd30e2e8af0c6/3bs7C.png)
-
-### **📌 Employees Table (**`**employees**`**)**
-
-|   |   |   |
-|---|---|---|
-|emp_id|name|dept_id|
-|1|Alice|101|
-|2|Bob|102|
-|3|Charlie|NULL|
-|4|David|101|
-|5|Emma|103|
-
-### **📌 Departments Table (**`**departments**`**)**
+###  Departments Table (`departments`)
 
 |   |   |
 |---|---|
@@ -1444,7 +1504,7 @@ There are **four main types** of joins:
 |103|Sales|
 |104|Marketing|
 
-1️⃣ **INNER JOIN**
+1️⃣ INNER JOIN
 
 ```sql
 SELECT employees.emp_id, employees.name, departments.dept_name
@@ -1452,33 +1512,26 @@ FROM employees
 INNER JOIN departments ON employees.dept_id = departments.dept_id;
 ```
 
-✔️ **Only exact matches (**`**dept_id**`**) appear in the result.**
+Only exact matches (**`dept_id`**) appear in the result.
 
 Why Only `FROM employees` in `INNER JOIN`?
 
-- The `FROM employees` **sets the starting point** (base table).
+- The `FROM employees` sets the starting point (base table).
 
-- The `INNER JOIN departments` **adds matching rows** from `departments`.
+- The `INNER JOIN departments` adds matching rows from `departments`.
 
-- The `ON employees.dept_id = departments.dept_id` **defines the condition** that links the tables.
+- The `ON employees.dept_id = departments.dept_id` defines the condition that links the tables.
 
-**But Why Choose** `**FROM employees**`**?**
-
-**I**f Employees are the Primary Data Focus
-
+But Why Choose `FROM employees`?
+If Employees are the Primary Data Focus
 - If we primarily need employee details, `FROM employees` makes sense.
-
 - It starts with the `employees` table.
-
 - It looks for matching `dept_id` in `departments`.
-
 - If a match is found, it includes the row; otherwise, it is excluded.
+2️⃣ LEFT JOIN (LEFT OUTER JOIN)
+🔹 Returns all rows from the left table (`employees`), even if there's no match in the right table.
 
-2️⃣ **LEFT JOIN (LEFT OUTER JOIN)**
-
-🔹 **Returns all rows from the left table** (`employees`), even if there's no match in the right table.
-
-A `LEFT JOIN` in MySQL returns **all records from the left table** and **matching records from the right table**. If there is **no match** in the right table, it returns `NULL` for those columns.
+A `LEFT JOIN` in MySQL returns all records from the left table and matching records from the right table. If there is no match in the right table, it returns `NULL` for those columns.
 
 ```sql
 SELECT employees.emp_id, employees.name, departments.dept_name
@@ -1486,9 +1539,9 @@ FROM employees
 LEFT JOIN departments ON employees.dept_id = departments.dept_id;
 ```
 
-**3️⃣ RIGHT JOIN (RIGHT OUTER JOIN)**
+3️⃣ RIGHT JOIN (RIGHT OUTER JOIN)
 
-🔹 **Returns all rows from the right table** (`departments`), even if there's no match in the left table.
+🔹 Returns all rows from the right table (`departments`), even if there's no match in the left table.
 
 ```sql
 SELECT employees.emp_id, employees.name, departments.dept_name
@@ -1496,11 +1549,11 @@ FROM employees
 RIGHT JOIN departments ON employees.dept_id = departments.dept_id;
 ```
 
-4️⃣ **FULL JOIN (FULL OUTER JOIN)**
+4️⃣ FULL JOIN (FULL OUTER JOIN)
 
 Returns all rows from both tables.
 
-✅ MySQL **does NOT support FULL JOIN**, but you can simulate it using `UNION`:
+✅ MySQL does NOT support FULL JOIN, but you can simulate it using `UNION`:
 
 ```sql
 SELECT employees.emp_id, employees.name, departments.dept_name
@@ -1513,20 +1566,16 @@ RIGHT JOIN departments ON employees.dept_id = departments.dept_id;
 ```
 
 5️⃣ CROSS JOIN
-
-🔹 **Returns the Cartesian product (all possible combinations) of both tables.**
-
+ Returns the Cartesian product (all possible combinations) of both tables.
 ```sql
 SELECT [employees.name](http://employees.name/), departments.dept_name
 FROM employees
 CROSS JOIN departments;
 ```
+ Useful for generating all possible combinations.
+ Grows exponentially, so be careful with large datasets!
 
-✔️ Useful for generating all possible combinations.
-
-✔️ Grows exponentially, so be careful with large datasets!
-
-## **🚀 Quick Comparison Table**
+##  Quick Comparison Table
 
 |   |   |
 |---|---|
@@ -1540,23 +1589,17 @@ CROSS JOIN departments;
 
 ## 🚀 Key Takeaways
 
-✅ Use `INNER JOIN` for only matching rows.
+Use `INNER JOIN` for only matching rows.
+Use `LEFT JOIN` to keep all rows from the left table.
+Use `RIGHT JOIN` to keep all rows from the right table.
+Use `FULL JOIN` (via `UNION`) to keep everything from both tables.
+ Use `CROSS JOIN` for all possible combinations.
+ Use `SELF JOIN` for hierarchical relationships.
 
-✅ Use `LEFT JOIN` to keep all rows from the left table.
+1 how to install `myphpAdmin mysql` in your UBUNTU machine
 
-✅ Use `RIGHT JOIN` to keep all rows from the right table.
-
-✅ Use `FULL JOIN` (via `UNION`) to keep everything from both tables.
-
-✅ Use `CROSS JOIN` for all possible combinations.
-
-✅ Use `SELF JOIN` for hierarchical relationships.
-
-1 how to install myphpAdmin mysql in your UBUNTU machine
-
-Let’s setup own **Projects** learn from from projects **MYSQL**
-
-db.config.js
+Let’s setup own Projects learn from from projects MYSQL
+`db.config.js`
 
 ```sql
 require("dotenv").config();
@@ -1575,20 +1618,7 @@ module.exports = {
   },
 };
 ```
-
-|   |   |
-|---|---|
-|**Property**|**Description**|
-|`HOST`|The database **host** (e.g., `localhost` or a remote server).|
-|`USER`|The database **username** (e.g., `root`).|
-|`PASSWORD`|The **password** for the database user.|
-|`DB`|The **database name** to connect to.|
-|`dialect`|Specifies **MySQL** as the database type.|
-|`charset`|Uses **utf8mb4**, which supports emojis and special characters.|
-|`pool`|Connection pool settings (optimizes performance).|
-
 What is the `pool` Configuration?
-
 The `pool` object controls **how many connections** MySQL maintains.
 
 |   |   |
@@ -1599,14 +1629,12 @@ The `pool` object controls **how many connections** MySQL maintains.
 |`acquire: 30000`|**Timeout (30s) before failing** if a connection is unavailable.|
 |`idle: 10000`|If a connection is **idle for 10s, it will be released**.|
 
-The `mysql2` package is an improved version of `mysql` for Node.js. It provides **better performance**, **async/await support**, and **faster queries**.
+The `mysql2` package is an improved version of `mysql` for Node.js. It provides better performance, async/await support, and faster queries.
 
 ```sql
 1️⃣ Install mysql2 if you haven't already:
 ```
-
-✅ **Creates a MySQL connection using credentials from** `**dbConfig.js**`**.**
-
+Creates a MySQL connection using credentials from `**dbConfig.js**`
 ```javascript
 const mysql = require('mysql2');
 // Create a connection pool
@@ -1619,17 +1647,13 @@ const pool = mysql.createPool({
 
 Using mysql2 with promise(): This enables the await pool.execute() syntax.
 ```
-
 2️⃣ Connecting to the Database
-
 ```javascript
 connection.connect((error) => {
   if (error) throw error;
   console.log("Successfully connected to the database.");
 ```
-
 3️⃣ Function to Create Tables
-
 ```javascript
   function createTable(query) {
     const createTableSQL = query;
@@ -1643,9 +1667,7 @@ connection.connect((error) => {
     });
   }
 ```
-
 5️⃣ Looping Through Tables to Create Them
-
 ```javascript
   table.forEach((e) => {
     const checkTableSQL = `SHOW TABLES LIKE '${e.tableName}'`;
@@ -1664,9 +1686,7 @@ connection.connect((error) => {
     });
   });
 ```
-
 how to create tables like if we are connecting MySQL first time then we creates Automatically tables
-
 ```javascript
 const { table } = require("./table.js");
 exports.table = [
@@ -1681,9 +1701,7 @@ exports.table = [
       "CREATE TABLE IF NOT EXISTS `distributed_trade_fees` (`id` int NOT NULL AUTO_INCREMENT, `user_id` int NOT NULL,  `from_user_id` int NOT NULL,  `coin_id` int NOT NULL,  `fees_amount` decimal(10,2) NOT NULL,  `order_id` int NOT NULL,  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;",
   }]
 ```
-
 1. how pass random or code base query in java script
-
 ```javascript
 const getUserInfo = "SELECT * FROM users WHERE id = ?";
     try {
@@ -1698,9 +1716,7 @@ const sql = `INSERT INTO user_activity (user_id, message, title) VALUES (?, ?, ?
 const [result] = await pool.execute(sql, [1, "User logged in", "Login"]);
 console.log(result);
 ```
-
 Yes, both `pool.query()` and `pool.execute()` exist in `mysql2`, but they serve slightly different purposes. Here’s the key difference:
-
 1. `query()` vs. `execute()` in `mysql2`
 
 |   |   |   |
@@ -1711,39 +1727,26 @@ Yes, both `pool.query()` and `pool.execute()` exist in `mysql2`, but they serve 
 |**Security**|More prone to SQL injection if parameters aren’t properly escaped.|Safer as it automatically escapes and binds parameters.|
 |**Performance**|Slightly slower because MySQL has to parse the query every time.|Faster for repeated queries as MySQL caches the prepared statement.|
 
-**2. When to Use** `**query()**`
-
+2. When to Use `query()`
 Use `query()` when:
-
-- You **don't** have user inputs or dynamic values (e.g., static queries).
-
-- You want to execute a query **once**, without worrying about performance.
-
+- You don't have user inputs or dynamic values (e.g., static queries).
+- You want to execute a query once, without worrying about performance.
 ```javascript
 const [rows] = await pool.query("SELECT * FROM users");
 ```
 
-**3. When to Use** `**execute()**`
-
+3. When to Use `execute()`
 Use `execute()` when:
-
-- You **have dynamic values** (e.g., user input like `id`).
-
-- You want to **prevent SQL injection** (it automatically escapes values).
-
-- You need **better performance** for repeated queries.
-
+- You have dynamic values (e.g., user input like `id`).
+- You want to prevent SQL injection (it automatically escapes values).
+- You need better performance for repeated queries.
 ```javascript
 const [rows] = await pool.execute("SELECT * FROM users WHERE id = ?", [userId]);
 ```
-
-If you are running **simple static queries**, `query()` is fine. But in most cases, `execute()` is the better choice. 🚀
-
+If you are running simple static queries, `query()` is fine. But in most cases, `execute()` is the better choice. 
 In `mysql2`, the result of a query or execution is returned as an **array**, where:
-
-- The **first element (**`**rows**`**)** contains the actual data from the database.
-
-- The **second element (**`**fields**`**)** (optional) contains metadata about the result set (like column definitions).
+- The first element (`rows`) contains the actual data from the database.
+- The second element (`fields`)** (optional) contains metadata about the result set (like column definitions).
 
 ```javascript
 const [rows] = await pool.execute("SELECT * FROM users WHERE id = ?", [userId]);
@@ -1830,19 +1833,18 @@ async function getUsers(req) {
   }
 }
 userColumns.join(", ") makes the code: 
-✅ More maintainable
-✅ More flexible
-✅ More error-pro
+ More maintainable
+ More flexible
+ More error-pro
 ```
 
 ```javascript
 const query = `SELECT \`read\`, \`write\`, \`delete\` FROM permissions WHERE userId = ${userId}`;
 ```
 
-==**\**== why?
-
-That backslash (`\`) is an **escape character** in JavaScript **template literals** (backtick strings).  
-✅ Correct Syntax for  
+ why?
+That backslash (`\`) is an escape character in JavaScript template literals (backtick strings).  
+ Correct Syntax for  
 `UPDATE` in MySQL
 
 ```javascript
@@ -1851,10 +1853,8 @@ SET name = ?, mobile_number = ?, refred_by_id = ?
 WHERE id = ?;
 ```
 
-`**SET**` **clause:** Specifies which columns to update.
-
-`**WHERE**` **clause:** Ensures that only the specific user (with `id = ?`) gets updated.
-
+`SET` clause: Specifies which columns to update.
+`WHERE` clause: Ensures that only the specific user (with `id = ?`) gets updated.
 🔥 Difference Between `INSERT` and `UPDATE`
 
 |   |   |   |   |
@@ -1863,12 +1863,9 @@ WHERE id = ?;
 |`INSERT`|Adds new row|✅ Yes|❌ No|
 |`UPDATE`|Modifies existing row|❌ No|✅ Yes|
 
-**What is an Alias in SQL?**
-
-An **alias** is a temporary, short name for a **table** or **column** used within a SQL query. Aliases **do not** change actual table or column names in the database—just how they appear in the query.
-
-✅ **1. Make Queries Shorter & More Readable**
-
+What is an Alias in SQL?
+An alias is a temporary, short name for a table or column used within a SQL query. Aliases do not change actual table or column names in the database—just how they appear in the query.
+1. Make Queries Shorter & More Readable
 ```sql
 SELECT customers.id, customers.name, customers.email FROM customers;
 // with alias
@@ -1877,22 +1874,15 @@ SELECT c.id, c.name, c.email FROM customers AS c;
  //If you want to return column names differently:
  SELECT name AS full_name, email AS contact_email FROM users;
 ```
-
-**📌 How to Use** `**FIND_IN_SET()**` **Correctly**
-
-If `n.pair_ids` **is stored as a string** in your database,you **must ensure** `cp.id` is treated as a string inside `FIND_IN_SET()`.
-
+📌 How to Use `FIND_IN_SET()` Correctly
+If `n.pair_ids` is stored as a string in your database,you **must ensure** `cp.id` is treated as a string inside `FIND_IN_SET()`.
 ```sql
 FIND_IN_SET(value, comma_separated_list)
 ```
-
-- `**value**` → The single value you want to find.
-
-- `**comma_separated_list**` → A string containing comma-separated values.
-
-- `**value**` → The single value you want to find.
-
-- `**comma_separated_list**` → A string containing comma-separated values.
+- `value` → The single value you want to find.
+- `comma_separated_list` → A string containing comma-separated values.
+- `value` → The single value you want to find.
+- `comma_separated_list` → A string containing comma-separated values.
 
 ```sql
 SELECT
@@ -1909,35 +1899,21 @@ WHERE exchange IN ('Binance', 'Kraken');
 ```
 
 Understanding the `LEFT JOIN` with `FIND_IN_SET()`
-
-🔹 What’s Happening?
-
+ What’s Happening?
 - `n.pair_ids` → A column in `exchange_credentials` that stores multiple `pair_id`s as a comma-separated string (e.g., `'10,20,30'`).
-
 - `cp.id` → The `id` from the `coinpair` table.
-
 - `FIND_IN_SET(cp.id, n.pair_ids)` checks if `cp.id` exists inside the `pair_ids` string.
-
-⚠️ Why `FIND_IN_SET()` is NOT Recommended?
-
-1. ❌ Poor Performance on Large Data
-    
+ Why `FIND_IN_SET()` is NOT Recommended?
+1. Poor Performance on Large Data
     - Does NOT use indexes (full table scan).
-    
     - Slower than a normal `JOIN`.
-
-2. ❌ Comma-Separated Values Are Bad for SQL
-    
+2.  Comma-Separated Values Are Bad for SQL
     - SQL databases are relational (use separate tables, not lists).
-    
     - `FIND_IN_SET()` is a workaround, not best practice.
-
-🚀 Best Alternative: Normalize the Database
+ Best Alternative: Normalize the Database
 
 Instead of storing `pair_ids` as a comma-separated string, create a mapping table.
-
-✅ Create a `credential_pairs` table
-
+ Create a `credential_pairs` table
 ```sql
 sql
 CopyEdit
@@ -1947,32 +1923,24 @@ CREATE TABLE credential_pairs (
     PRIMARY KEY (credential_id, pair_id)
 );
 ```
-
-✅ **Insert Data:**
-
+ Insert Data:
 ```sql
 
 INSERT INTO credential_pairs (credential_id, pair_id) VALUES
 (1, 10), (1, 20), (1, 30),
 (2, 15), (2, 25);
 ```
-
 Selecting All Columns From One Table + Some Columns From Another
-
 ```sql
 SELECT notifications.*, users.name 
 FROM notifications 
 LEFT JOIN users ON notifications.user_id = users.id;
 ```
 
-**If a table has many columns,** ==**fetching unnecessary**== **data** ==**slows down queries.**==
-
-- `notifications.*` = All columns from `notifications` table.
-
+If a table has many columns,fetching unnecessary data slows down queries.
+- `notifications.` = All columns from `notifications` table.
 - `users.name` = Only `name` column from `users`.
-
 - Better practice → Select only needed columns for better performance.
-
 Other way Insert
 
 ```sql
@@ -1989,14 +1957,10 @@ const result = await dbQueryAsync(sql, values);
 ```
 
 How It Works?
-
 - The `SET ?` syntax allows you to pass an **object (**`**values**`**)**.
-
 - MySQL will automatically map the **keys** in the object (`coin_first_id`, `coin_second_id`, etc.) to **column names**.
-
 - The **values** in the object (`firstCoinId`, `secondCoinId`, etc.) will be inserted into the respective columns.
-
-**Difference Between Both Methods**
+Difference Between Both Methods
 
 |   |   |   |
 |---|---|---|
@@ -2005,8 +1969,7 @@ How It Works?
 |`VALUES (?, ?, ? ...)`|✅ More explicit and standard|❌ Slightly longer|
 
 Both methods work, but the `VALUES (?, ?, ?)` approach is **more common** for MySQL.
-
-**INNER JOIN = Only matching rows from both tables**
+INNER JOIN = Only matching rows from both tables
 
 ```sql
 SELECT 

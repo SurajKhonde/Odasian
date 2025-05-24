@@ -8,91 +8,34 @@
         "type": "tabs",
         "children": [
           {
-            "id": "a8473e166af4973e",
+            "id": "798e3f7a04c9e393",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Problem Solving/DSA(PROBLEM SOLVING ).md",
+                "file": "Problem Solving/DSA TOPICS.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DSA(PROBLEM SOLVING )"
+              "title": "DSA TOPICS"
             }
           },
           {
-            "id": "2a67f6302b439562",
+            "id": "9ed3b6600704d41f",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Problem Solving/DSA(PROBLEM SOLVING ).md",
+                "file": "Problem Solving/New DSA Problem.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DSA(PROBLEM SOLVING )"
-            }
-          },
-          {
-            "id": "ae932751e0e9a410",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "MySQL(Database).md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "MySQL(Database)"
-            }
-          },
-          {
-            "id": "696f19b6f7c4986b",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Problem Solving/Common Approach to solve Uncommon problems.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Common Approach to solve Uncommon problems"
-            }
-          },
-          {
-            "id": "df8923a148a698aa",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Language/JavaScript.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "JavaScript"
-            }
-          },
-          {
-            "id": "98328197d9bdd66c",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "RandomNotes/React js/some golden  React rules.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "some golden  React rules"
+              "title": "New DSA Problem"
             }
           }
-        ],
-        "currentTab": 4
+        ]
       }
     ],
     "direction": "vertical"
@@ -251,55 +194,56 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "df8923a148a698aa",
+  "active": "798e3f7a04c9e393",
   "lastOpenFiles": [
-    "Language/SQL/Famous words In SQL.md",
-    "Language/SQL/MySQL(Database).md",
-    "Basic Engineering/NEW setup on Ubuntu.md",
-    "Pasted image 20250506092939.png",
-    "Pasted image 20250506105101.png",
-    "Problem Solving/Common Approach to solve Uncommon problems.md",
+    "Problem Solving/New DSA Problem.md",
+    "Problem Solving/DSA TOPICS.md",
     "Problem Solving/DSA(PROBLEM SOLVING ).md",
-    "DSA TOPICS.md",
-    "Problem Solving/Basic Topics DSA",
-    "Intial Booster problem.md",
-    "Language/languageImages/image 2.png",
-    "Language/languageImages/image 1 1.png",
-    "Language/languageImages/image 1.png",
-    "RandomNotes/React js/images/image 1.png",
-    "Language/SQL",
-    "RandomNotes/React js/images/Pasted image 20250428104445.png",
-    "RandomNotes/React js/React Hooks.md",
-    "RandomNotes/React js/Search is not just UI — it's a performance-critical feature..md",
-    "RandomNotes/java script Random concepts.md",
-    "Untitled.canvas",
+    "Untitled",
+    "redux/Most Basic Setup RT K(Redux Tool Kit).md",
+    "Language/JavaScript.md",
+    "Basic Engineering/NEW setup on Ubuntu.md",
     "Language/Typescript.md",
-    "Famous Word in MYSQL",
-    "RandomNotes/React js/images/Pasted image 20250505210147.png",
-    "RandomNotes/React js/React.Js Learning from books.md",
+    "Language/SQL/MySQL(Database).md",
+    "RandomNotes/java script Random concepts.md",
+    "Project Based Learning/Learning React From Project.md",
+    "Problem Solving/Common Approach to solve Uncommon problems.md",
     "RandomNotes/React js/why React Re-rendering.md",
     "RandomNotes/React js/some golden  React rules.md",
+    "RandomNotes/React js/Search is not just UI — it's a performance-critical feature..md",
+    "RandomNotes/React js/React.Js Learning from books.md",
     "RandomNotes/React js/React Internals.md",
-    "RandomNotes/React js/Html Tags Used In Project.md",
+    "RandomNotes/React js/React Hooks.md",
+    "RandomNotes/Node.js.md",
+    "RandomNotes/Linux Command Line (CLI).md",
+    "Problem Solving/Intial Booster problem.md",
+    "Random Notes.md",
+    "Pasted image 20250511233039.png",
+    "Pasted image 20250511232949.png",
+    "Pasted image 20250511232524.png",
+    "Pasted image 20250511232348.png",
+    "Pasted image 20250511232106.png",
+    "Pasted image 20250511231402.png",
+    "Pasted image 20250511231152.png",
+    "Pasted image 20250511230528.png",
+    "Pasted image 20250511230415.png",
     "RandomNotes/React js/general Concept.md",
-    "Project Based Learning/Learning React From Project.md",
+    "RandomNotes/React js/Html Tags Used In Project.md",
     "Project Based Learning/React Package we have used.md",
+    "Pasted image 20250511121143.png",
+    "Problem Solving/Dsa_images",
+    "redux/REACT .T .K.md",
+    "Language/SQL/Famous words In SQL.md",
+    "redux/ReactLifecycle.canvas",
+    "Problem Solving/Basic Topics DSA",
+    "Language/SQL",
+    "Untitled.canvas",
+    "Famous Word in MYSQL",
     "RandomNotes/React js/Search(who is better)",
     "inital Bosster confidanvce",
-    "Language/JavaScript.md",
-    "redux/REACT .T .K.md",
-    "RandomNotes/React js/images/Pasted image 20250429142819.png",
-    "RandomNotes/React js/images/Pasted image 20250429142145.png",
     "Project Based Learning/Images Used in project Based Learning",
     "Language/languageImages",
-    "javaScript.md",
     "Project Based Learning",
-    "Language",
-    "Basic Engineering",
-    "redux/ReactLifecycle.canvas",
-    "redux/Most Basic Setup RT K(Redux Tool Kit).md",
-    "React.md",
-    "note.md",
     "Untitled 1.canvas"
   ]
 }

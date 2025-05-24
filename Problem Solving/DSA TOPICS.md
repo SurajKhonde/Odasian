@@ -232,6 +232,106 @@ LinkedList.prototype.reverseList = function() {
   this.head = prev;
 }
 //क्योंकि Linked List में last से start नहीं कर सकते। हमें manually links पलटने होते हैं।
+LinkedList.prototype.detectCycle = function() {
+  let slow = this.head;
+  let fast = this.head;
+
+  while (fast !== null && fast.next !== null) {
+    slow = slow.next;
+    fast = fast.next.next;
+
+    if (slow === fast) return true; // cycle detected
+  }
+
+  return false; // no cycle
+}
+function mergeTwoListsRecursive(l1, l2) {
+  if (!l1) return l2;
+  if (!l2) return l1;
+
+  if (l1.data < l2.data) {
+    l1.next = mergeTwoListsRecursive(l1.next, l2);
+    return l1;
+  } else {
+    l2.next = mergeTwoListsRecursive(l1, l2.next);
+    return l2;
+  }
+}
+LinkedList.prototype.findMiddle = function() {
+  let slow = this.head;
+  let fast = this.head;
+
+  while (fast !== null && fast.next !== null) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+
+  return slow; // This is the middle node
+}
+LinkedList.prototype.isPalindrome = function() {
+  if (!this.head || !this.head.next) return true;
+
+  // Step 1: Find middle
+  let slow = this.head;
+  let fast = this.head;
+  while (fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+  }
+
+  // Step 2: Reverse second half
+  let prev = null;
+  while (slow) {
+    let next = slow.next;
+    slow.next = prev;
+    prev = slow;
+    slow = next;
+  }
+
+  // Step 3: Compare both halves
+  let left = this.head;
+  let right = prev;
+  while (right) {
+    if (left.data !== right.data) return false;
+    left = left.next;
+    right = right.next;
+  }
+
+  return true;
+}
+function addTwoNumbers(l1, l2) {
+  let dummy = new Node(0);
+  let current = dummy;
+  let carry = 0;
+
+  while (l1 || l2 || carry) {
+    const val1 = l1 ? l1.data : 0;
+    const val2 = l2 ? l2.data : 0;
+    const sum = val1 + val2 + carry;
+
+    carry = Math.floor(sum / 10);
+    current.next = new Node(sum % 10);
+    current = current.next;
+
+    if (l1) l1 = l1.next;
+    if (l2) l2 = l2.next;
+  }
+
+  return dummy.next;
+}
+function getIntersectionNode(headA, headB) {
+  if (!headA || !headB) return null;
+
+  let a = headA;
+  let b = headB;
+
+  while (a !== b) {
+    a = a ? a.next : headB;
+    b = b ? b.next : headA;
+  }
+
+  return a;
+}
 
 ```
 
@@ -620,4 +720,240 @@ const levelOrderTraversal = (root) => {
     return values;
 };
 
+```
+
+#### Graphs
+**Graph (ग्राफ)** एक ऐसा डेटा स्ट्रक्चर होता है जो **nodes (जिसे vertex/vertices भी कहते हैं)** और **edges (connections या रास्ते)** से बना होता है।
+- **Node (Vertex):** एक पॉइंट या जगह (जैसे "A", "B", "C")
+- **Edge:** दो nodes के बीच का कनेक्शन या रास्ता
+![[Pasted image 20250511112848.png]]
+
+##### 2. ग्राफ के प्रकार (Types of Graphs)
+ a. `Undirected Graph `(अनिर्दिष्ट ग्राफ)
+- इसमें कनेक्शन दोनों दिशाओं में होता है।
+- अगर A → B है, तो इसका मतलब B → A भी हो सकता है।
+- यहाँ दोनो directions में travelling की permission होती है।
+- अगर A और B के बीच connection (edge) है, तो
+ **Use case**: दोस्ती (Friendship) — अगर A, B का दोस्त है, तो B भी A का दोस्त है।
+b.`Directed Graph` (निर्दिष्ट ग्राफ / Digraph)
+- इसमें edges एक दिशा में होते हैं (one-way).
+- अगर A → B है, तो B → A जरूरी नहीं है।
+1. `Cyclic` Graph:
+- Contains one or more **cycles**, which are paths that start and end at the same vertex.
+1. `Acyclic` Graph:
+- **No cycles** are present in the graph.
+- A common example is a **Tree**, which is a special type of acyclic graph.
+![[Pasted image 20250511121143.png]]
+##### 3.Graph क्यों और कहां काम आता है?
+- Social network (Facebook: friend suggestion)
+- Navigation (Google Maps)
+- Recommendation engine
+- Dependency trees (coding, tasks, etc.)
+##### Adjacency List क्या होता है?
+> Adjacency List एक ऐसा तरीका है जिसमें हर node (vertex) के साथ उसके connected nodes (neighbors) को लिस्ट किया जाता है।
+
+यह structure हमें ये बताता है:
+- कौन-कौन से node connected हैं?
+- कहाँ से कहाँ flow (या arrow)** जा सकता है — यानी travelling permission.
+```js
+{
+  A: ["B", "C"],
+  B: ["A", "D"],
+  C: ["A"],
+  D: ["B"]
+}
+```
+यहाँ से पता चलता है
+- A से B और C जा सकते हैं
+- B से A और D जा सकते हैं (दोनों तरफ allowed है क्योंकि undirected है).
+>[!warning ]
+>**DFS (Depth First Search)** और **BFS (Breadth First Search)** दोनों ही **Graph के ज़्यादातर problems को solve करने की core techniques** हैं
+
+##### DFS (Depth First Search) — गहराई में जाता है
+- Stack (या recursion) का use करता है
+- एक node से शुरुआत करके जितना possible हो अंदर जाता है, फिर backtrack करता है
+###### DFS का use:
+-  Cycle detection
+-  Tree/graph traversal
+- Topological sorting (DAG में)
+- Connected components
+- Path exist करता है या नहीं चेक करना
+#####  BFS (Breadth First Search) — लेयर-बाय-लेयर जाता है
+- Queue का use करता है
+- पहले एक level explore करता है, फिर next
+ BFS का use:
+-  Shortest path (Unweighted graph में)
+-  Minimum steps/levels
+-  Level-order traversal
+- Friend suggestion / Nearby nodes
+#####  तुलना (DFS vs BFS)
+
+|Feature|DFS|BFS|
+|---|---|---|
+|Strategy|गहराई में जाता है|चौड़ाई में लेयर-बाय-लेयर जाता है|
+|Use Cases|Cycle, backtracking, components|Shortest path, level-based|
+|Data Structure|Stack / Recursion|Queue|
+|Space Complexity|O(h) (h = depth)|O(w) (w = width/level size)|
+##### Depth-First Search (DFS):
+we only care that is node visited
+```js
+function depthFSIterative(graph, start) {
+  const stack = [start]; // स्टैक में शुरुआत का नोड डालो
+  const visited = new Set(); // विज़िटेड नोड्स को ट्रैक करने के लिए Set बनाओ
+  while (stack.length > 0) { // जब तक स्टैक खाली नहीं हो जाता
+    const node = stack.pop(); // स्टैक से टॉप नोड निकालो (LIFO)
+
+    if (!visited.has(node)) { // अगर ये नोड पहले विज़िट नहीं हुआ
+      visited.add(node); // विज़िटेड में इस नोड को ऐड कर दो
+
+      for (const neighbour of graph[node]) { // इसके सभी नेबर्स को देखो
+        if (!visited.has(neighbour)) { // जो विज़िटेड नहीं हैं
+          stack.push(neighbour); // उन्हें स्टैक में डाल दो
+        }
+      }
+    }
+  }
+  return Array.from(visited); // विज़िट किए गए नोड्स को ऐरे में बदलकर लौटाओ
+};
+
+```
+
+######  Recursive DFS (with visited tracking)
+```js
+function depthFSRecursive(graph, node, visited = new Set(), result = []) {
+  visited.add(node); // नोड को विज़िट कर लिया
+  result.push(node); // रिज़ल्ट में डाल दो
+
+  for (const neighbour of graph[node]) {
+    if (!visited.has(neighbour)) {
+      depthFSRecursive(graph, neighbour, visited, result); // recursion से बाकी को विज़िट करो
+    }
+  }
+
+  return result;
+}
+
+```
+###### DFS without visited set (may revisit nodes — not ideal for cycles)
+```js
+function depthFSAllowRevisit(graph, start) {
+  const stack = [start];
+  const result = [];
+
+  while (stack.length > 0) {
+    const node = stack.pop();
+    result.push(node); // रिकॉर्ड कर लो, चाहे वो पहले आया हो या नहीं
+
+    for (const neighbour of graph[node]) {
+      stack.push(neighbour); // हर बार नेबर्स को स्टैक में डाल दो
+    }
+  }
+
+  return result;
+}
+
+```
+##### BFS (Breadth First Search) क्या है?
+- Graph traversal की एक technique है जहाँ हम सबसे पहले current node के _सभी आस-पास (neighbours)_ को विज़िट करते हैं और फिर उनके neighbours को।
+- मान लो तुम किसी स्टेशन पर खड़े हो — पहले वहाँ के सभी नजदीकी स्टेशन पर जाओ, फिर उन स्टेशन से आगे के और... और ऐसे ही आगे बढ़ते जाओ।
+- हम एक Queue (FIFO) यूज़ करते हैं ताकि पहले आए हुए nodes को पहले process करें।
+```js
+function breadthFirstSearch(graph, start) {
+  const queue = [start];         // 1. Start node को queue में डालो
+  const visited = new Set();     // 2. Track रखने के लिए Set
+  const result = [];             // 3. Traverse का order
+  visited.add(start);
+  while (queue.length > 0) {
+    const node = queue.shift();   // 4. FIFO: सबसे पहले आए node को निकालो
+    result.push(node);
+
+    for (const neighbour of graph[node]) {
+      if (!visited.has(neighbour)) {
+        visited.add(neighbour);    // 5. उसे visited में डाल दो
+        queue.push(neighbour);     // 6. और queue में डाल दो future traversal के लिए
+      }
+    }
+  }
+  return result;
+}
+
+```
+##### search Node
+To determine whether there is a directed path from a start node to a dest node in a Directed Acyclic Graph (DAG)
+###### JavaScript Code (DFS using Stack)
+```js
+function hasPath(graph, start, dest) {
+  const stack = [start];
+  const visited = new Set();
+
+  while (stack.length > 0) {
+    const node = stack.pop();
+
+    if (node === dest) return true;
+    if (visited.has(node)) continue;
+
+    visited.add(node);
+
+    for (let neighbor of graph[node]) {
+      stack.push(neighbor);
+    }
+  }
+
+  return false;
+}
+
+```
+######  Code (BFS using Queue)
+```js
+function hasPath(graph, start, dest) {
+  const queue = [start];
+  const visited = new Set();
+  while (queue.length > 0) {
+    const node = queue.shift();
+    if (node === dest) return true;
+    if (visited.has(node)) continue;
+    visited.add(node);
+    for (let neighbor of graph[node]) {
+      queue.push(neighbor);
+    }
+  }
+  return false;
+}
+
+```
+###### JavaScript Code (DFS)
+```js
+function hasPath(graph, start, dest) {
+  const visited = new Set();
+
+  function dfs(node) {
+    if (node === dest) return true;
+    if (visited.has(node)) return false;
+
+    visited.add(node);
+
+    for (let neighbor of graph[node]) {
+      if (dfs(neighbor)) return true;
+    }
+
+    return false;
+  }
+
+  return dfs(start);
+}
+
+```
+##### recursive solution
+```js
+function hasPath(graph, start, dest, visited = new Set()) {
+  if (start === dest) return true;
+  if (visited.has(start)) return false;
+  visited.add(start);
+  for (let neighbor of graph[start]) {
+    if (hasPath(graph, neighbor, dest, visited)) {
+      return true;
+    }
+  }
+  return false;
+}
 ```
